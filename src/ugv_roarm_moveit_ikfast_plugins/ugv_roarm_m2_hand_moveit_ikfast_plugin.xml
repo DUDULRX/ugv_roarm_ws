@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<library path="ugv_roarm_m2_hand_moveit_ikfast_plugin">
+  <class name="ugv_roarm_m2_hand/IKFastKinematicsPlugin" type="ugv_roarm_m2_hand::IKFastKinematicsPlugin" base_class_type="kinematics::KinematicsBase">
+    <description>IKFast61 plugin for closed-form kinematics of ugv roarm m2 hand</description>
+  </class>
+</library>

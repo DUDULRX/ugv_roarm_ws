@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<robot name="cobra_flex" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="use_gazebo" params="use_gazebo">
+
+<xacro:arg name="robot_namespace" default="/" />
+<xacro:arg name="urdf_extras" default="empty.urdf" />
+
+<xacro:include filename="$(find ugv_description)/urdf/wheels/cobra_flex_wheel.xacro" />
+<!--xacro:include filename="$(find ugv_description)/urdf/sensors/lidar.xacro" />
+<xacro:property name="lidar_joint_pose">
+  <origin xyz="0.122987 0 0.084" rpy="0 0 1.5708"/>
+</xacro:property>
+<xacro:lidar> 
+<xacro:insert_block name="lidar_joint_pose" />
+</xacro:lidar>
+
+<xacro:include filename="$(find ugv_description)/urdf/sensors/3d_camera.xacro" />
+<xacro:oak use_gazebo="$(arg use_gazebo)">
+  <origin xyz="0.06531 0 0.021953" rpy="0 0 0" />
+</xacro:oak>
+
+<xacro:include filename="$(find ugv_description)/urdf/sensors/pt.xacro"/>
+<xacro:pt use_gazebo="$(arg use_gazebo)" pt_base_link_joint_pose_z="0.04"/-->
+<xacro:include filename="$(find ugv_description)/urdf/gazebo/cobra_flex.gazebo"/>
+
+<xacro:property name="base_inertial">
+  <inertial>
+    <origin xyz="0 0 0.03125" rpy="0 0 0" />
+    <mass value="0.372508" />
+    <inertia ixx="0.001051161" ixy="0" ixz="0" iyy="0.001830025" iyz="0" izz="0.002541211" />
+  </inertial>
+</xacro:property>
+
+<xacro:property name="base_pose">
+  <origin xyz="0 0 0" rpy="0 0 0" />
+</xacro:property>
+
+<xacro:property name="base_joint_pose">
+  <origin xyz="0 0 0.03125" rpy="0 0 0"/>
+</xacro:property>
+    
+<link name="base_footprint"></link>
+
+<link name="base_link">
+  <xacro:insert_block name="base_inertial" />
+  <visual>
+    <xacro:insert_block name="base_pose"/>
+    <geometry>
+      <mesh filename="file://$(find ugv_description)/meshes/bases/cobra_flex_base.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <xacro:insert_block name="base_pose"/>
+    <geometry>
+      <mesh filename="file://$(find ugv_description)/meshes/bases/cobra_flex_base.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="base_joint" type="fixed">
+  <parent link="base_footprint"/>
+  <child link="base_link"/>
+  <xacro:insert_block name="base_joint_pose" />
+</joint>
+
+
+<xacro:property name="wheel_inertial_pose_z" value="0"/>
+
+<xacro:macro name="wheel_inertial" params="inertial_pose_z">
+  <inertial>
+    <origin xyz="0 0 ${inertial_pose_z}" rpy="0 0 0" />
+    <mass value="0.0773754" />
+    <inertia ixx="6.14167E-05" ixy="0" ixz="0" iyy="6.14167E-05" iyz="0" izz="9.67193E-05" />
+  </inertial>
+</xacro:macro>
+
+<xacro:property name="wheel_pose">
+  <origin xyz="0 0 0" rpy="0 -0 0" />
+</xacro:property>
+
+<xacro:property name="wheel_joint_pose_x" value="0.077"/>
+<xacro:property name="wheel_joint_pose_y" value="0.089"/>
+<xacro:property name="wheel_joint_pose_z" value="0.003"/>
+<xacro:property name="wheel_joint_pose_rpy" value="1.5708 0 0"/>
+<xacro:wheel wheel_prefix="left_up">
+  <xacro:wheel_inertial inertial_pose_z="${wheel_inertial_pose_z}"></xacro:wheel_inertial>
+  <xacro:insert_block name="wheel_pose" />
+  
+  <origin xyz="${wheel_joint_pose_x} ${wheel_joint_pose_y} ${wheel_joint_pose_z}" rpy="${wheel_joint_pose_rpy}" />
+</xacro:wheel>
+
+<xacro:wheel wheel_prefix="left_down">
+  <xacro:wheel_inertial inertial_pose_z="${wheel_inertial_pose_z}"></xacro:wheel_inertial>
+  <xacro:insert_block name="wheel_pose" />
+  
+  <origin xyz="-${wheel_joint_pose_x} ${wheel_joint_pose_y} ${wheel_joint_pose_z}" rpy="${wheel_joint_pose_rpy}" />
+</xacro:wheel>
+
+<xacro:wheel wheel_prefix="right_up">
+  <xacro:wheel_inertial inertial_pose_z="-${wheel_inertial_pose_z}"></xacro:wheel_inertial>
+  <xacro:insert_block name="wheel_pose" />
+  
+  <origin xyz="${wheel_joint_pose_x} -${wheel_joint_pose_y} ${wheel_joint_pose_z}" rpy="${wheel_joint_pose_rpy}" />
+</xacro:wheel>
+
+<xacro:wheel wheel_prefix="right_down">
+  <xacro:wheel_inertial inertial_pose_z="-${wheel_inertial_pose_z}"></xacro:wheel_inertial>
+  <xacro:insert_block name="wheel_pose" />
+  
+  <origin xyz="-${wheel_joint_pose_x} -${wheel_joint_pose_y} ${wheel_joint_pose_z}" rpy="${wheel_joint_pose_rpy}" />
+</xacro:wheel>  
+
+<xacro:include filename="$(arg urdf_extras)" />
+</xacro:macro>
+</robot>

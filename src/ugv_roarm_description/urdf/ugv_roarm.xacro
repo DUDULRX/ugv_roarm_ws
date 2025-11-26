@@ -1,0 +1,123 @@
+<?xml version="1.0" ?>
+<robot name="ugv_roarm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:arg name="robot_namespace" default="/" />
+<xacro:arg name="urdf_extras" default="empty.urdf" />
+
+<xacro:arg name="use_gazebo" default="false"/>
+
+<xacro:arg name="ugv_model" default="ugv_rover"/>
+<xacro:property name="ugv_model" value="$(arg ugv_model)"/>
+
+<xacro:arg name="roarm_model" default="roarm_m3"/>
+<xacro:property name="roarm_model" value="$(arg roarm_model)"/>
+
+<xacro:arg name="add_pt" default="false"/>
+<xacro:property name="add_pt" value="$(arg add_pt)"/>
+
+<xacro:include filename="$(find ugv_description)/urdf/bases/$(arg ugv_model).xacro"/>
+<xacro:include filename="$(find ugv_roarm_description)/urdf/roarm/bases/$(arg roarm_model).xacro"/>
+
+<xacro:if value="${roarm_model == 'roarm_m2'}">
+
+<xacro:if value="${ugv_model == 'rasp_rover'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="-0.014242 0 0.097648" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'ugv_rover'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="-0.014242 0 0.04" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'ugv_beast'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="-0.014242 0 0.097303" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'cobra_flex'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="0.080932 0 0.084" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'cobra_surge'}">  
+<!-- 0.087459 -->
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="0.080932 0 0.084" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+</xacro:if>
+
+<xacro:if value="${roarm_model == 'roarm_m3'}">
+
+<xacro:if value="${ugv_model == 'rasp_rover'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="-0.014242 0 0.097648" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'ugv_rover'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="-0.014242 0 0.04" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'ugv_beast'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="-0.014242 0 0.097303" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'cobra_flex'}">  
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="0.080932 0 0.084" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+<xacro:if value="${ugv_model == 'cobra_surge'}">  
+
+<joint name="ugv_roarm_base_link_joint" type="fixed">
+  <origin xyz="0.080932 0 0.084" rpy="0 0 0" />
+  <parent link="base_link" />
+  <child link="ugv_roarm_base_link" />
+  <axis xyz="0 0 0" />
+</joint>
+</xacro:if>
+
+</xacro:if>
+
+<xacro:include filename="$(arg urdf_extras)" />
+
+</robot>

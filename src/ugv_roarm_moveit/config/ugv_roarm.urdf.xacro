@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ugv_roarm">
+
+<xacro:arg name="ros2_control_plugin" default="FakeSystem"/>
+<xacro:property name="ros2_control_plugin" value="$(arg ros2_control_plugin)"/>
+
+<xacro:arg name="initial_positions_file" default="$(arg roarm_model)/initial_positions.yaml" />
+<xacro:include filename="$(arg roarm_model)/$(arg roarm_model).ros2_control.xacro" />
+
+<xacro:roarm_ros2_control name="$(arg ros2_control_plugin)" initial_positions_file="$(arg initial_positions_file)"/>
+
+<xacro:include filename="$(find ugv_roarm_description)/urdf/ugv_roarm.xacro"/>
+
+
+</robot>
