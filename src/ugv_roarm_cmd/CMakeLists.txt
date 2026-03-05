@@ -21,7 +21,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(roarm_moveit_cmd REQUIRED)
-find_package(ugv_interface REQUIRED)
+find_package(ugv_msgs REQUIRED)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   ament_cmake
@@ -39,7 +39,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   roarm_moveit_cmd
   nav2_msgs
   trajectory_msgs
-  ugv_interface
+  ugv_msgs
 )
 
 # Include directories
@@ -79,7 +79,7 @@ ament_target_dependencies(navigatetoposecmd
 #install(TARGETS pickplacecmd pointsave navigatetoposecmd DESTINATION lib/${PROJECT_NAME})
 install(TARGETS navigatetoposecmd pickplacecmd DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY launch config rviz DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch rviz DESTINATION share/${PROJECT_NAME})
   
 ament_package()
 

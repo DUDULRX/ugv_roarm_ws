@@ -2,7 +2,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <ugv_interface/msg/point_save.hpp>
+#include <ugv_msgs/msg/point_save.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -16,20 +16,20 @@ class PointSaver : public rclcpp::Node
 public:
     PointSaver() : Node("point_saver_node"), tf_buffer_(get_clock()), tf_listener_(tf_buffer_)
     {
-        sub_ = this->create_subscription<ugv_interface::msg::PointSave>(
+        sub_ = this->create_subscription<ugv_msgs::msg::PointSave>(
             "save_point_cmd", 10, std::bind(&PointSaver::point_callback, this, _1));
         json_path_ = declare_parameter("save_file", "saved_points.json");
         load_json();
     }
 
 private:
-    rclcpp::Subscription<ugv_interface::msg::PointSave>::SharedPtr sub_;
+    rclcpp::Subscription<ugv_msgs::msg::PointSave>::SharedPtr sub_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
     json point_data_;
     std::string json_path_;
 
-    void point_callback(const ugv_interface::msg::PointSave::SharedPtr msg)
+    void point_callback(const ugv_msgs::msg::PointSave::SharedPtr msg)
     {
         geometry_msgs::msg::TransformStamped tf;
         try {

@@ -1,17 +1,24 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
+from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
+from ament_index_python.packages import get_package_share_directory,get_package_share_path
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition, UnlessCondition
 
 def generate_launch_description():
     # Declare launch arguments
     pub_odom_tf_arg = DeclareLaunchArgument(
-        'pub_odom_tf', default_value='true',
+        'pub_odom_tf', default_value='false',
         description='Whether to publish the tf from the original odom to the base_footprint'
+    )
+
+    use_ekf_arg = DeclareLaunchArgument(
+        'use_ekf', default_value='true',
+        description='Whether to use ekf'
     )
 
     use_rviz_arg = DeclareLaunchArgument(
@@ -20,13 +27,19 @@ def generate_launch_description():
     )
 
     rviz_config_arg = DeclareLaunchArgument(
-        'rviz_config', default_value='moveit', 
+        'rviz_config', default_value='bringup', 
         description='Choose which rviz configuration to use: description, bringup, moveit, moveit_servo, moveit_mtc, slam_2d, slam_3d, nav_2d, nav_3d'
     )
     
     moveit_config_arg = DeclareLaunchArgument(
         'use_moveit_servo', default_value='false', 
         description='Whether to launch moveit'
+    )
+
+    ekf_config = os.path.join(              
+        get_package_share_directory('ugv_bringup'),
+        'config',
+        'ekf.yaml'
     )
     
      #Include the robot state launch from the ugv_description package
@@ -52,12 +65,6 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_moveit_servo')),
     )
 
-    # Define the nodes to be launched
-    bringup_node = Node(
-        package='ugv_roarm_bringup',
-        executable='ugv_roarm_bringup',
-    )
-
     # Include laser lidar launch file
     laser_bringup_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -76,23 +83,51 @@ def generate_launch_description():
         )
     )
 
-    # Define the base node with parameters
-    base_node = Node(
-        package='ugv_base_node',
-        executable='base_node',
-        parameters=[{'pub_odom_tf': LaunchConfiguration('pub_odom_tf')}]
+    # Define the nodes to be launched
+    bringup_node = Node(
+        package='ugv_roarm_bringup',
+        executable='ugv_roarm_bringup',        
+        parameters=[{
+            'serial_port': '/dev/ttyAMA0',
+            'baud_rate': 115200
+        }]
     )
+
+    # Define the nodes to be launched
+    base_node = Node(
+        package='ugv_bringup',
+        executable='odom_publisher',
+        parameters=[{
+            'odom_frame': 'odom',
+            'base_footprint_frame': 'base_footprint',
+            'pub_odom_tf': LaunchConfiguration('pub_odom_tf'),
+        }],
+        condition=IfCondition(LaunchConfiguration('use_ekf'))
+    )
+
+    # Define the nodes to be launched
+    ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[ekf_config],
+        remappings=[('/odometry/filtered', '/odom')],
+        condition=IfCondition(LaunchConfiguration('use_ekf'))
+    )  
 
     # Return the launch description with all defined actions
     return LaunchDescription([
         pub_odom_tf_arg,
+        use_ekf_arg,
         use_rviz_arg,
         moveit_config_arg,
         rviz_config_arg,
         robot_state_launch,
         robot_state_moveit_servo_launch,
         bringup_node,
-        laser_bringup_launch,
+        # laser_bringup_launch,
         rf2o_laser_odometry_launch,
-        base_node
+        base_node,
+        ekf_node,     
     ])
