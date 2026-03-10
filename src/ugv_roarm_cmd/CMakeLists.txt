@@ -53,14 +53,6 @@ include_directories(
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_export_include_directories(include)
 
-# Define executables
-add_executable(pickplacecmd 
-    src/pickplacecmd.cpp)
-target_include_directories(pickplacecmd 
-    PUBLIC include)
-ament_target_dependencies(pickplacecmd 
-    ${THIS_PACKAGE_INCLUDE_DEPENDS} Boost)
-
 #add_executable(pointsave 
 #    src/pointsave.cpp)
 #target_include_directories(pointsave 
@@ -76,8 +68,8 @@ ament_target_dependencies(navigatetoposecmd
    ${THIS_PACKAGE_INCLUDE_DEPENDS} Boost)
 
 # Install targets
-#install(TARGETS pickplacecmd pointsave navigatetoposecmd DESTINATION lib/${PROJECT_NAME})
-install(TARGETS navigatetoposecmd pickplacecmd DESTINATION lib/${PROJECT_NAME})
+#install(TARGETS pointsave navigatetoposecmd DESTINATION lib/${PROJECT_NAME})
+install(TARGETS navigatetoposecmd DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch rviz DESTINATION share/${PROJECT_NAME})
   

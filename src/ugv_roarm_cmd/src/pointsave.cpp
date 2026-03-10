@@ -35,7 +35,7 @@ private:
         try {
             tf = tf_buffer_.lookupTransform("map", "base_footprint", tf2::TimePointZero);
         } catch (tf2::TransformException &ex) {
-            RCLCPP_WARN(get_logger(), "无法获取TF: %s", ex.what());
+            RCLCPP_WARN(get_logger(), "unable to get TF: %s", ex.what());
             return;
         }
 

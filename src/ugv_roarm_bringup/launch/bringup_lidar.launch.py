@@ -42,7 +42,7 @@ def generate_launch_description():
         'ekf.yaml'
     )
     
-     #Include the robot state launch from the ugv_description package
+    #Include the robot state launch from the ugv_description package
     robot_state_launch = IncludeLaunchDescription(
          PythonLaunchDescriptionSource(
              os.path.join(get_package_share_directory('ugv_roarm_description'), 'launch', 'display.launch.py')
@@ -127,7 +127,7 @@ def generate_launch_description():
         robot_state_moveit_servo_launch,
         bringup_node,
         # laser_bringup_launch,
-        rf2o_laser_odometry_launch,
+        # rf2o_laser_odometry_launch,
         base_node,
-        ekf_node,     
+        # ekf_node,     
     ])
