@@ -274,9 +274,9 @@ class ugv_roarm_bringup(Node):
         self.last_roarm_sent_data = data
 
         try:
-            # self.base_controller.send_command(data.encode())
+            self.base_controller.send_command(data.encode())
             print(data)
-            self.base_controller.ser.write(data.encode())
+            # self.base_controller.ser.write(data.encode())
 
         except SerialException as e:
             self.get_logger().error(f"{e}")
