@@ -1,6 +1,5 @@
 import xacro
 import os
-import sys
 from launch_ros.actions import Node
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
@@ -8,16 +7,8 @@ from launch.conditions import IfCondition, UnlessCondition
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler, OpaqueFunction
-from launch_ros.parameter_descriptions import ParameterValue
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from srdfdom.srdf import SRDF
-from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 
-from moveit_configs_utils.launch_utils import (
-    add_debuggable_node,
-    DeclareBooleanLaunchArg,
-)
 from moveit_configs_utils import MoveItConfigsBuilder
 
 def get_rviz_config_file(context):
@@ -142,10 +133,6 @@ def launch_setup(context, *args, **kwargs):
         "moveit_simple_controller_manager", {}
     ).get("controller_names", [])
              
-    controllers = [
-        '',
-    ] + [controller for controller in controller_names]
-
     for controller in controller_names + ["joint_state_broadcaster"]:
         controller_nodes.append(Node(
             package='controller_manager',
@@ -190,7 +177,3 @@ def generate_launch_description():
         # Opaque function to execute the setup
         OpaqueFunction(function=launch_setup)
     ])
-
-# Main entry point for launching the description
-if __name__ == '__main__':
-    generate_launch_description()

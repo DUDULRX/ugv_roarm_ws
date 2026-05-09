@@ -1,5 +1,4 @@
 import os
-import sys
 import yaml
 import xacro
 
@@ -61,7 +60,6 @@ def get_moveit_config(robot_name: str):
 # Function to set up and launch ROS 2 nodes based on the given context
 def launch_setup(context, *args, **kwargs):
     add_camera = context.launch_configurations['add_camera']
-    print("add_camera flag",add_camera)
     add_depth_camera = context.launch_configurations['add_depth_camera']
 
     share_dir = get_package_share_directory('ugv_roarm_moveit')    
@@ -161,8 +159,4 @@ def generate_launch_description():
         # Opaque function to execute the setup
         OpaqueFunction(function=launch_setup)
     ])
-
-# Main entry point for launching the description
-if __name__ == '__main__':
-    generate_launch_description()
     

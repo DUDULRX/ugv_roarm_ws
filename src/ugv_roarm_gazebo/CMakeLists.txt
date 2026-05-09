@@ -59,9 +59,7 @@ install(TARGETS
 
 
 install(DIRECTORY
-  worlds
   launch
-  maps
   DESTINATION share/${PROJECT_NAME}/
 )
 
