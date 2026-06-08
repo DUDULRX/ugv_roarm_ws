@@ -65,6 +65,7 @@ def launch_setup(context, *args, **kwargs):
     share_dir = get_package_share_directory('ugv_roarm_moveit')    
     UGV_MODEL = os.environ['UGV_MODEL']
     ROARM_MODEL = os.environ['ROARM_MODEL']
+    GRIPPER_TYPE = os.environ['GRIPPER_TYPE']
     
     xacro_file = os.path.join(
         share_dir,
@@ -77,6 +78,7 @@ def launch_setup(context, *args, **kwargs):
                "roarm_model": ROARM_MODEL,
                "add_depth_camera": add_depth_camera,
                "add_camera": add_camera,
+               "gripper_type": GRIPPER_TYPE,
                } 
                
     robot_description_config = xacro.process_file(xacro_file, mappings=mappings)

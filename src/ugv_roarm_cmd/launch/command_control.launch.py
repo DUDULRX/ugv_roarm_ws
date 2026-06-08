@@ -11,19 +11,9 @@ from launch.substitutions import Command, LaunchConfiguration
 def generate_launch_description():
     ld = LaunchDescription()
 
-    set_gripper_cmd_node = Node(
-        package='roarm_moveit_cmd',
-        executable='setgrippercmd',
-    )
-
     yolov8_detect_oak_node = Node(
         package='roarm_vision',
         executable='yolov8_detect_oak',
-    )
-            
-    pick_place_cmd_node = Node(
-        package='ugv_roarm_cmd',
-        executable='pickplacecmd',
     )
     
     navigate_to_pose_cmd_node = Node(
@@ -31,9 +21,7 @@ def generate_launch_description():
         executable='navigatetoposecmd',
     )   
     
-    ld.add_action(set_gripper_cmd_node) 
     ld.add_action(yolov8_detect_oak_node) 
-    ld.add_action(pick_place_cmd_node) 
     #ld.add_action(navigate_to_pose_cmd_node)    
     
     return ld
