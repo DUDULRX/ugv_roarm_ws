@@ -27,4 +27,4 @@ hand_controller:
       - velocity
 gripper_controller:
   ros__parameters:
-    joint: link3_to_gripper_link
+    joint: gripper_joint
