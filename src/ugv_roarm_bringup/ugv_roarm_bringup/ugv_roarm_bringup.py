@@ -212,7 +212,7 @@ class ugv_roarm_bringup(Node):
         base = position[name.index('base_link_to_link1')]
         shoulder = position[name.index('link1_to_link2')]
         elbow =  position[name.index('link2_to_link3')]
-        hand =  3.1415926 - position[name.index('link3_to_gripper_link')]
+        hand =  3.1415926 - position[name.index('gripper_joint')]
                 
         data = json.dumps({
             'T': 102, 
