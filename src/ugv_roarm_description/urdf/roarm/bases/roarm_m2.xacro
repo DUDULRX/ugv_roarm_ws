@@ -35,7 +35,7 @@
 
   <xacro:if value="${gripper_type == 'angular_direct'}">
     <parent link="link3" />
-    <origin xyz="-0.046 -0.183536 0" rpy="1.5708 0 -1.5708" />
+    <origin xyz="-0.062588 -0.181612 0" rpy="1.5708 0 -1.3963" />
   </xacro:if>
 
   <xacro:if value="${gripper_type == 'angular_gear'}">
