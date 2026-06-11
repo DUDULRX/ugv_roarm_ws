@@ -10,6 +10,8 @@ PACKAGES=(
     ugv_roarm_moveit_mtc_demo
     ugv_roarm_moveit_servo
     ugv_roarm_description
+    ugv_roarm_bringup
+    ugv_roarm_moveit
     ugv_roarm_gazebo
 )
 

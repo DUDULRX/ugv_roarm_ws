@@ -96,6 +96,8 @@ colcon build \
 colcon build \
   --packages-select \
     ugv_roarm_description \
+    ugv_roarm_bringup \
+    ugv_roarm_moveit \
     ugv_roarm_gazebo \
   --symlink-install \
   --executor sequential
