@@ -319,14 +319,12 @@ int convertJoyToCmd(const std::vector<float> &axes,
   if (axes[mapping.D_PAD_X] || axes[mapping.D_PAD_Y])
   {
     base_twist_msg->linear.x = 0.2 * axes[mapping.D_PAD_Y];
-    base_twist_msg->angular.z = 0.5 * axes[mapping.D_PAD_X];
-    return 3;
-  }else
-  {
-    base_twist_msg->linear.x = 0.0;
-    base_twist_msg->angular.z = 0.0;
+    base_twist_msg->angular.z = -0.5 * axes[mapping.D_PAD_X];
     return 3;
   }
+
+  // Do not publish /cmd_vel when D-Pad is idle — allows keyboardcontrol to drive the base
+  return -1;
 }
 
 /** \brief // This should update the frame_to_publish_ as needed for changing command frame via controller

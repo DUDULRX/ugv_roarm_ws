@@ -39,6 +39,8 @@
  */
 
 #include <chrono>
+#include <mutex>
+#include <thread>
 #include <control_msgs/msg/joint_jog.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
@@ -92,6 +94,10 @@ namespace
   constexpr int8_t KEYCODE_P = 0x70;
   constexpr int8_t KEYCODE_G = 0x67;
   constexpr int8_t KEYCODE_Q = 0x71;
+  constexpr int8_t KEYCODE_K = 0x6B;
+  constexpr int8_t KEYCODE_SPACE = 0x20;
+  constexpr int8_t KEYCODE_ESC = 0x1B;
+  constexpr int8_t KEYCODE_BRACKET = 0x5B;
   constexpr int8_t KEYCODE_RIGHT = 0x43;
   constexpr int8_t KEYCODE_LEFT = 0x44;
   constexpr int8_t KEYCODE_UP = 0x41;
@@ -130,8 +136,13 @@ public:
   }
 void readOne(char *c)
 {
+  readOne(c, 100000);
+}
+
+void readOne(char *c, int timeout_usec)
+{
 #ifndef WIN32
-  *c = '\0';  // 默认字符（没有输入时返回）
+  *c = '\0';
 
   fd_set set;
   struct timeval timeout;
@@ -140,7 +151,7 @@ void readOne(char *c)
   FD_SET(file_descriptor_, &set);
 
   timeout.tv_sec = 0;
-  timeout.tv_usec = 100000;  // 100ms
+  timeout.tv_usec = timeout_usec;
 
   int rv = select(file_descriptor_ + 1, &set, NULL, NULL, &timeout);
   if (rv == -1)
@@ -160,15 +171,33 @@ void readOne(char *c)
     }
   }
 #else
+  (void)timeout_usec;
   if (_kbhit())
   {
     *c = static_cast<char>(_getch());
   }
   else
   {
-    *c = '\0';  
+    *c = '\0';
   }
 #endif
+}
+
+bool readArrowSuffix(char *arrow_key)
+{
+#ifndef WIN32
+  char c2 = '\0';
+  char c3 = '\0';
+  readOne(&c2, 10000);
+  readOne(&c3, 10000);
+  if (c2 == KEYCODE_BRACKET && c3 != '\0')
+  {
+    *arrow_key = c3;
+    return true;
+  }
+#endif
+  (void)arrow_key;
+  return false;
 }
   void shutdown()
   {
@@ -193,6 +222,7 @@ public:
 
 private:
   void spin();
+  void publishBaseTwist(bool force = false);
   double gripper_value_;
   rclcpp::Node::SharedPtr nh_;
 
@@ -201,14 +231,24 @@ private:
   rclcpp::Client<roarm_msgs::srv::ServoCommandType>::SharedPtr switch_input_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr gripper_pub_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr base_twist_pub_;
+  rclcpp::TimerBase::SharedPtr base_twist_timer_;
 
   std::shared_ptr<roarm_msgs::srv::ServoCommandType::Request> request_;
   double joint_vel_cmd_;
   double twist_vel_cmd_;
+  double base_linear_x_;
+  double base_angular_z_;
+  std::mutex base_twist_mutex_;
   std::string command_frame_id_;
 };
 
-KeyboardServo::KeyboardServo() : joint_vel_cmd_(1.0), twist_vel_cmd_(0.5), gripper_value_(0.0), command_frame_id_{"ugv_roarm_base_link"}
+KeyboardServo::KeyboardServo()
+: joint_vel_cmd_(1.0)
+, twist_vel_cmd_(0.5)
+, gripper_value_(0.0)
+, base_linear_x_(0.0)
+, base_angular_z_(0.0)
+, command_frame_id_{"ugv_roarm_base_link"}
 {
   nh_ = rclcpp::Node::make_shared("keyboard_control");
 
@@ -219,6 +259,25 @@ KeyboardServo::KeyboardServo() : joint_vel_cmd_(1.0), twist_vel_cmd_(0.5), gripp
 
   // Client for switching input types
   switch_input_ = nh_->create_client<roarm_msgs::srv::ServoCommandType>("servo_node/switch_command_type");
+
+  base_twist_timer_ = nh_->create_wall_timer(
+      std::chrono::milliseconds(50),
+      [this]()
+      { publishBaseTwist(); });
+}
+
+void KeyboardServo::publishBaseTwist(bool force)
+{
+  geometry_msgs::msg::Twist msg;
+  {
+    std::lock_guard<std::mutex> lock(base_twist_mutex_);
+    msg.linear.x = base_linear_x_;
+    msg.angular.z = base_angular_z_;
+  }
+  if (force || msg.linear.x != 0.0 || msg.angular.z != 0.0)
+  {
+    base_twist_pub_->publish(msg);
+  }
 }
 
 KeyboardReader input;
@@ -273,7 +332,7 @@ int KeyboardServo::keyLoop()
   {
     puts("Use x|y|z|r|p| keys to Cartesian jog. 's' to reverse the direction of twist.");
   }
-  puts("Use arrow keys to move the car");
+  puts("Use arrow keys to move the car (latched; k or Space to stop chassis)");
   puts("'Q' to quit.");
 
   for (;;)
@@ -289,11 +348,23 @@ int KeyboardServo::keyLoop()
       return -1;
     }
 
+    if (c == KEYCODE_ESC)
+    {
+      char arrow = '\0';
+      if (input.readArrowSuffix(&arrow))
+      {
+        c = arrow;
+      }
+      else
+      {
+        continue;
+      }
+    }
+
     // Create the messages we might publish
     auto twist_msg = std::make_unique<geometry_msgs::msg::TwistStamped>();
     auto joint_msg = std::make_unique<control_msgs::msg::JointJog>();
     auto gripper_msg = std::make_unique<std_msgs::msg::Float32>();
-    auto base_twist_msg = std::make_unique<geometry_msgs::msg::Twist>();
 
     if (model == "roarm_m2")
     {
@@ -441,30 +512,56 @@ int KeyboardServo::keyLoop()
     case KEYCODE_Q:
       RCLCPP_DEBUG(nh_->get_logger(), "quit");
       return 0;
+    case KEYCODE_K:
+    case KEYCODE_SPACE:
+      RCLCPP_DEBUG(nh_->get_logger(), "stop chassis");
+      {
+        std::lock_guard<std::mutex> lock(base_twist_mutex_);
+        base_linear_x_ = 0.0;
+        base_angular_z_ = 0.0;
+      }
+      publish_base_twist = true;
+      break;
     case KEYCODE_LEFT:
       RCLCPP_DEBUG(nh_->get_logger(), "LEFT");
-      base_twist_msg->angular.z = 0.5;
+      {
+        std::lock_guard<std::mutex> lock(base_twist_mutex_);
+        base_angular_z_ = 0.5;
+      }
       publish_base_twist = true;
       break;
     case KEYCODE_RIGHT:
       RCLCPP_DEBUG(nh_->get_logger(), "RIGHT");
-      base_twist_msg->angular.z = -0.5;
+      {
+        std::lock_guard<std::mutex> lock(base_twist_mutex_);
+        base_angular_z_ = -0.5;
+      }
       publish_base_twist = true;
       break;
     case KEYCODE_UP:
       RCLCPP_DEBUG(nh_->get_logger(), "UP");
-      base_twist_msg->linear.x = 0.2;
+      {
+        std::lock_guard<std::mutex> lock(base_twist_mutex_);
+        base_linear_x_ = 0.2;
+      }
       publish_base_twist = true;
       break;
     case KEYCODE_DOWN:
       RCLCPP_DEBUG(nh_->get_logger(), "DOWN");
-      base_twist_msg->linear.x = -0.2;
+      {
+        std::lock_guard<std::mutex> lock(base_twist_mutex_);
+        base_linear_x_ = -0.2;
+      }
       publish_base_twist = true;
-      break;   
+      break;
     case '\0':
-      base_twist_msg->linear.x = 0;
-      base_twist_msg->angular.z = 0;
-      publish_base_twist = true; 
+      break;
+    }
+
+    if (publish_base_twist)
+    {
+      publishBaseTwist(c == KEYCODE_K || c == KEYCODE_SPACE);
+      publish_base_twist = false;
     }
 
     // If a key requiring a publish was pressed, publish the message now
@@ -486,12 +583,7 @@ int KeyboardServo::keyLoop()
     {
       gripper_pub_->publish(std::move(gripper_msg));
       publish_gripper = false;
-    }    
-    if (publish_base_twist)
-    {
-      base_twist_pub_->publish(std::move(base_twist_msg));
-      publish_base_twist = false;
-    }   
+    }
   }
 
   return 0;

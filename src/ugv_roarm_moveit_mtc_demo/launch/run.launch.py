@@ -38,7 +38,7 @@ def get_moveit_config(robot_name: str):
     base_path = f"config/{robot_name}"
 
     moveit_config = (
-        MoveItConfigsBuilder(robot_name, package_name="roarm_moveit")
+        MoveItConfigsBuilder(robot_name, package_name="ugv_roarm_moveit")
         # .robot_description(file_path=f"{base_path}/{robot_name}.urdf.xacro")
         .robot_description_semantic(file_path=f"{base_path}/{robot_name}.srdf")
         .robot_description_kinematics(file_path=f"{base_path}/kinematics.yaml")
@@ -48,8 +48,8 @@ def get_moveit_config(robot_name: str):
         .pilz_cartesian_limits(file_path=f"{base_path}/pilz_cartesian_limits.yaml")
         .to_moveit_configs()
     )
-    share_dir = get_package_share_directory('roarm_moveit')
-    ros2_controllers = os.path.join(share_dir, f"{base_path}/ros2_controllers.yaml")  
+    share_dir = get_package_share_directory('ugv_roarm_moveit')
+    ros2_controllers = os.path.join(share_dir, f"{base_path}/ros2_controllers.yaml")
     moveit_config = RoarmMoveItConfig(moveit_config, ros2_controllers)
 
     return moveit_config

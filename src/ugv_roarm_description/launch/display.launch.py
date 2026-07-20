@@ -143,6 +143,12 @@ def launch_setup(context, *args, **kwargs):
             condition=UnlessCondition(use_joint_state_publisher_gui)
         ))
 
+    set_gripper_cmd_node = Node(
+        package='roarm_moveit_cmd',
+        executable='setgrippercmd',
+        condition=UnlessCondition(use_joint_state_publisher_gui),
+    )
+
     # Get the appropriate RViz configuration file
     rviz_config_file = get_rviz_config_file(context)
 
@@ -162,6 +168,7 @@ def launch_setup(context, *args, **kwargs):
         joint_state_publisher_gui_node,
         ros2_control_node,
         *controller_nodes,
+        set_gripper_cmd_node,
         rviz2_node
     ]
 
