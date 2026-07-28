@@ -4,13 +4,49 @@ set -e
 WS=/home/ws/ugv_roarm_ws
 BASHRC=~/.bashrc
 
-# This workspace currently targets UGV Rover + RoArm-M2 + angular_direct gripper only.
+UGV_WS=/home/ws/ugv_ws
+ROARM_WS=/home/ws/roarm_ws
+
+LDLIDAR_MODEL=ld19
 UGV_MODEL=ugv_rover
 ROARM_MODEL=roarm_m2
 GRIPPER_TYPE=angular_direct
 
 add_if_not_exist () {
     grep -qxF "$1" "$BASHRC" || echo "$1" >> "$BASHRC"
+}
+
+set_bashrc_export () {
+    local var="$1"
+    local val="$2"
+    local line="export ${var}=${val}"
+    if grep -qE "^export ${var}=" "$BASHRC" 2>/dev/null; then
+        sed -i -E "s|^export ${var}=.*$|${line}|" "$BASHRC"
+    else
+        echo "$line" >> "$BASHRC"
+    fi
+}
+
+source_if_exists () {
+    if [ -f "$1" ]; then
+        echo "✔ Sourcing $1"
+        # shellcheck disable=SC1090
+        source "$1"
+    else
+        echo "⏭ Not found, skip: $1"
+    fi
+}
+
+reload_bashrc () {
+    # shellcheck disable=SC1090
+    source "$BASHRC" 2>/dev/null || true
+
+    # 非交互脚本里 bashrc 可能直接 return，再强制加载关键变量
+    while IFS= read -r line; do
+        eval "$line"
+    done < <(grep -E '^export (GZ_VERSION|UGV_MODEL|LDLIDAR_MODEL|ROARM_MODEL|GRIPPER_TYPE)=' "$BASHRC" 2>/dev/null || true)
+
+    echo "✔ Reloaded env from ~/.bashrc (GZ_VERSION=${GZ_VERSION:-none})"
 }
 
 echo "=============================="
@@ -20,41 +56,38 @@ echo "=============================="
 echo
 
 echo "Fixed configuration:"
-echo "  UGV_MODEL    = $UGV_MODEL"
-echo "  ROARM_MODEL  = $ROARM_MODEL"
-echo "  GRIPPER_TYPE = $GRIPPER_TYPE"
+echo "  LDLIDAR_MODEL = $LDLIDAR_MODEL"
+echo "  UGV_MODEL     = $UGV_MODEL"
+echo "  ROARM_MODEL   = $ROARM_MODEL"
+echo "  GRIPPER_TYPE  = $GRIPPER_TYPE"
 echo
 
-echo "[1/2] Select LiDAR model:"
-select LDLIDAR_MODEL in ld19 ld06 stl27l; do
-    [ -n "$LDLIDAR_MODEL" ] && break
-    echo "Invalid selection."
-done
-
-echo
-echo "Selected configuration:"
-echo "  UGV_MODEL      = $UGV_MODEL"
-echo "  ROARM_MODEL    = $ROARM_MODEL"
-echo "  LDLIDAR_MODEL  = $LDLIDAR_MODEL"
-echo "  GRIPPER_TYPE   = $GRIPPER_TYPE"
-
+echo "[1/2] Configuration"
 read -p "Save to ~/.bashrc? [y/N]: " SAVE_ENV
 if [[ "$SAVE_ENV" =~ ^[Yy]$ ]]; then
-    add_if_not_exist "export UGV_MODEL=$UGV_MODEL"
-    add_if_not_exist "export ROARM_MODEL=$ROARM_MODEL"
-    add_if_not_exist "export LDLIDAR_MODEL=$LDLIDAR_MODEL"
-    add_if_not_exist "export GRIPPER_TYPE=$GRIPPER_TYPE"
+    set_bashrc_export UGV_MODEL "$UGV_MODEL"
+    set_bashrc_export ROARM_MODEL "$ROARM_MODEL"
+    set_bashrc_export LDLIDAR_MODEL "$LDLIDAR_MODEL"
+    set_bashrc_export GRIPPER_TYPE "$GRIPPER_TYPE"
     echo "✔ Configuration saved to ~/.bashrc"
 else
-    export UGV_MODEL
-    export ROARM_MODEL
-    export LDLIDAR_MODEL
-    export GRIPPER_TYPE
+    export UGV_MODEL ROARM_MODEL LDLIDAR_MODEL GRIPPER_TYPE
     echo "✔ Configuration exported for current shell only"
 fi
 
 echo
+echo "Preparing build environment..."
+source_if_exists /opt/ros/humble/setup.bash
+source_if_exists "$UGV_WS/install/setup.bash"
+source_if_exists "$ROARM_WS/install/setup.bash"
+export UGV_MODEL ROARM_MODEL LDLIDAR_MODEL GRIPPER_TYPE
+
+echo
 echo "[2/2] Building workspace: $WS"
+if [ ! -d "$WS" ]; then
+    echo "❌ Workspace not found: $WS"
+    exit 1
+fi
 cd "$WS" || exit 1
 
 colcon build \
@@ -77,8 +110,11 @@ colcon build \
 
 echo
 echo "Finalizing environment..."
+add_if_not_exist "source /opt/ros/humble/setup.bash"
 add_if_not_exist "source $WS/install/setup.bash"
-source ~/.bashrc
+
+source_if_exists /opt/ros/humble/setup.bash
+source_if_exists "$WS/install/setup.bash"
 
 echo
 echo "=============================="
@@ -87,4 +123,7 @@ echo "✔ UGV_MODEL=$UGV_MODEL"
 echo "✔ ROARM_MODEL=$ROARM_MODEL"
 echo "✔ LDLIDAR_MODEL=$LDLIDAR_MODEL"
 echo "✔ GRIPPER_TYPE=$GRIPPER_TYPE"
+echo "✔ Workspace=$WS"
 echo "=============================="
+
+reload_bashrc

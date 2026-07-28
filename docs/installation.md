@@ -98,6 +98,8 @@ cd /home/ws/ugv_roarm_ws
 
 Select package numbers to rebuild (see [Package Reference](packages.md)).
 
+Enter package numbers interactively (no model / Gazebo prompts). When the build finishes, the script **sources `install/setup.bash` in that terminal**; other already-open terminals still need `source ~/.bashrc` or a new shell.
+
 ---
 
 ## Change LiDAR later {#change-lidar-or-gripper}
