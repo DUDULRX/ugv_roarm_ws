@@ -87,8 +87,7 @@ Joint sliders (no serial):
 ```bash
 ros2 launch ugv_roarm_description display.launch.py \
   use_rviz:=true \
-  rviz_config:=description \
-  use_joint_state_publisher_gui:=true
+  rviz_config:=description
 ```
 
 With **`ros2_control`** (same as bringup/MoveIt path):
@@ -96,7 +95,7 @@ With **`ros2_control`** (same as bringup/MoveIt path):
 ```bash
 ros2 launch ugv_roarm_description display.launch.py \
   use_rviz:=true \
-  rviz_config:=description
+  rviz_config:=moveit
 ```
 
 Ensure `UGV_MODEL=ugv_rover` and `ROARM_MODEL=roarm_m2` are exported.

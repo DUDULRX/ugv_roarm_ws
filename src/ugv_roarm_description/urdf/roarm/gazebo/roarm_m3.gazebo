@@ -57,13 +57,4 @@
   <self_collide>true</self_collide>
 </gazebo>
 
-<gazebo>
-  <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-    <robot_sim_type>gazebo_ros2_control/GazeboSystem</robot_sim_type>
-    <parameters>$(find roarm_moveit)/config/roarm_m3/ros2_controllers.yaml</parameters>
-    <robot_param_node>robot_state_publisher</robot_param_node>
-    <robotParam>robot_description</robotParam>
-  </plugin>
-</gazebo>
-
 </robot>
