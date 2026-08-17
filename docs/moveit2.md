@@ -124,7 +124,7 @@ When the UGV drives, **`base_link`** moves in **`odom`** — keep the base stati
 |---------|-------------|
 | Arm does not move on Execute | Confirm **`ugv_roarm_bringup`** is running (from bringup **T0** or integrated launch); check `/dev/ttyAMA0` |
 | Duplicate `ros2_control` / controller errors | Do not mix default bringup (`use_moveit_servo:=false`) with a second full **`ugv_roarm_moveit`** launch — use **`use_moveit_servo:=true`** integrated launch, or stop bringup before starting MoveIt |
-| No robot in RViz | **Fixed Frame** → `world` or `base_link`; add **MotionPlanning** display for Plan & Execute |
+| No robot in RViz | **Fixed Frame** → `base_footprint`, `base_link`, or `ugv_roarm_base_link`; add **MotionPlanning** display for Plan & Execute |
 | `KeyError: 'ROARM_MODEL'` / `'GRIPPER_TYPE'` | `source ~/.bashrc`; expected `roarm_m2` and `angular_direct` |
 
 ---

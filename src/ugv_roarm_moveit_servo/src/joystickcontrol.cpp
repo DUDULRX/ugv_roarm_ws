@@ -415,7 +415,7 @@ namespace ugv_roarm_moveit_servo
       {
         // publish the JointJog
         joint_msg->header.stamp = this->now();
-        joint_msg->header.frame_id = "base_link";
+        joint_msg->header.frame_id = "ugv_roarm_base_link";
         joint_pub_->publish(std::move(joint_msg));
       }
 

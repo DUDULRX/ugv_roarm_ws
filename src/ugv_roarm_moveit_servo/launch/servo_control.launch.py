@@ -93,6 +93,8 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={
             'rviz_config': 'moveit_servo',
             'use_rviz': LaunchConfiguration('use_rviz'),
+            'add_camera': LaunchConfiguration('add_camera'),
+            'add_depth_camera': LaunchConfiguration('add_depth_camera'),
         }.items()
     )
         

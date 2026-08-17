@@ -12,7 +12,7 @@
     # Poses
     hand_open_pose: "open"
     hand_close_pose: "close"
-    arm_home_pose: "observe"
+    arm_home_pose: "ready"
 
     # Scene frames
     world_frame: "ugv_roarm_base_link"

@@ -182,7 +182,7 @@ def generate_launch_description():
         # Argument to specify which RViz configuration to use
         DeclareLaunchArgument('rviz_config', default_value='description', description='Choose which rviz configuration to use: description, bringup, slam_2d, slam_3d, nav_2d, nav_3d'),
         DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),      
-        DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add depth camera'),      
+        DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add camera'),      
         # Opaque function to execute the setup
         OpaqueFunction(function=launch_setup)
     ])

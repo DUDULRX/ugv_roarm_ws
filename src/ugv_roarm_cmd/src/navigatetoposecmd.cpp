@@ -24,6 +24,9 @@ public:
         client_ = rclcpp_action::create_client<NavigateToPose>(this, "navigate_to_pose");
         pick_place_client_ = this->create_client<roarm_msgs::srv::PickPlaceCmd>("/pick_place_cmd");
 
+        this->declare_parameter<std::string>("points_file", "saved_points.json");
+        points_file_ = this->get_parameter("points_file").as_string();
+
         step_ = 0;
         send_goal(1, 1);  // Initial navigation to pick_1
     }
@@ -32,6 +35,7 @@ private:
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_;
     rclcpp::Client<roarm_msgs::srv::PickPlaceCmd>::SharedPtr pick_place_client_;
     int step_;  // State variables of control flow
+    std::string points_file_;
 
     void send_goal(int cmd, int name)
     {
@@ -40,9 +44,9 @@ private:
             return;
         }
 
-        std::ifstream in("/home/ws/ugv_roarm_ws/saved_points.json");
+        std::ifstream in(points_file_);
         if (!in.is_open()) {
-            RCLCPP_ERROR(get_logger(), "Unable to open JSON file!");
+            RCLCPP_ERROR(get_logger(), "Unable to open JSON file: %s", points_file_.c_str());
             return;
         }
 

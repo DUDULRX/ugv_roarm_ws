@@ -109,7 +109,7 @@ public:
   }
 
 private:
-  std::string base_frame = "world";
+  std::string base_frame = "ugv_roarm_base_link";
   std::string apriltag_frame = "apriltag"; 
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;

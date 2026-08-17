@@ -16,22 +16,22 @@ Already built **`ugv_roarm_ws`**? Skip to [Robot Description](description.md) or
 A **frame** is a 3D coordinate system (origin + X/Y/Z). Each URDF **link** has one. **TF** publishes how frames move relative to each other as joints rotate.
 
 ```text
-world → base_link → link1 → link2 → link3 → … → hand_tcp
+map → odom → base_footprint → base_link → ugv_roarm_base_link → link1 → link2 → link3 → … → hand_tcp
 ```
 
 | Frame | Role |
 |-------|------|
-| `world` | Fixed scene frame — common RViz **Fixed Frame** in MoveIt |
-| `base_link` | Robot base on the desk; most poses are expressed relative to this |
+| `base_footprint` / `base_link` | UGV Rover chassis frames — common RViz **Fixed Frame** |
+| `ugv_roarm_base_link` | Arm root on the chassis; MTC / Servo Cartesian poses use this |
 | `link1` … `link3` | Arm links (RoArm-M2) |
 | `gripper_*` | Gripper meshes (`gripper_base`, fingers) |
 | `hand_tcp` | Named **tool frame** for MoveIt and Servo |
 
 `robot_state_publisher` reads `/joint_states` + URDF and broadcasts TF. RViz and MoveIt draw the arm from that tree.
 
-### `base_link` axes (right-hand rule)
+### `ugv_roarm_base_link` axes (right-hand rule)
 
-Most Cartesian commands — Servo jog, `/move_joint_cmd` x/y/z, solver poses — are expressed in **`base_link`** (on the arm; the mobile base uses `base_footprint` / `odom` — see [UGV + RoArm Basics](ugv_roarm_basics.md)). The frame follows the usual **right-hand rule** (same convention as ROS2 / RViz axis colors: **red = X**, **green = Y**, **blue = Z**):
+Most arm Cartesian commands — Servo jog, `/move_joint_cmd` x/y/z, solver poses — are expressed in **`ugv_roarm_base_link`** (arm root; the mobile base uses `base_footprint` / `odom` — see [UGV + RoArm Basics](ugv_roarm_basics.md)). The frame follows the usual **right-hand rule** (same convention as ROS2 / RViz axis colors: **red = X**, **green = Y**, **blue = Z**):
 
 **Click an image for full-screen view** — click outside, press **Esc**, or **×** to close.
 

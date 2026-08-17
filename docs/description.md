@@ -14,45 +14,39 @@ MoveIt loads the same xacro via **`ugv_roarm_moveit/config/ugv_roarm.urdf.xacro`
 
 ## Package file layout
 
+Chassis URDF/Gazebo live in **`ugv_description`** (`ugv_ws`); arm meshes/grippers in **`roarm_description`** (`roarm_ws`). This package only holds the **combined entry**, **arm base xacro**, **mount mesh**, and display assets.
+
 ```
 ugv_roarm_description/
 ├── urdf/
-│   ├── ugv_roarm.xacro             # top-level combined model
+│   ├── ugv_roarm.xacro                  # combined entry: UGV base + RoArm + mount joint
 │   ├── materials.xacro
-│   ├── empty.urdf                  # optional extras hook (urdf_extras)
-│   ├── ugv/
-│   │   ├── bases/                  # local UGV base xacro copies
-│   │   │   ├── ugv_rover.xacro     # UGV_MODEL=ugv_rover (this branch)
-│   │   │   ├── rasp_rover.xacro
-│   │   │   ├── ugv_beast.xacro
-│   │   │   └── cobra_*.xacro
-│   │   └── gazebo/                 # UGV Gazebo plugins (sim)
-│   │       ├── ugv_rover.gazebo
-│   │       └── ...
+│   ├── empty.urdf                       # optional urdf_extras hook
 │   └── roarm/
 │       ├── bases/
-│       │   ├── roarm_m2.xacro      # ROARM_MODEL=roarm_m2 (this branch)
+│       │   ├── roarm_m2.xacro           # ROARM_MODEL=roarm_m2 (this branch)
 │       │   └── roarm_m3.xacro
 │       └── gazebo/
 │           ├── roarm_m2.gazebo
 │           ├── roarm_m2.trans
-│           └── roarm_m3.*
+│           ├── roarm_m3.gazebo
+│           └── roarm_m3.trans
 ├── meshes/
-│   └── ugv_roarm_base_link.stl     # arm mount plate on chassis
+│   └── ugv_roarm_base_link.stl          # arm mount plate on chassis
 ├── config/
 │   ├── initial_positions_roarm_m2.yaml
 │   └── initial_positions_roarm_m3.yaml
 ├── launch/
-│   └── display.launch.py           # URDF + RViz (use_rviz:=true)
+│   └── display.launch.py                # URDF + RViz (use_rviz:=true)
 └── rviz/
     └── view_description.rviz
 ```
 
 | Path | Purpose |
 |------|---------|
-| `urdf/ugv_roarm.xacro` | Main entry — includes UGV base + RoArm + mount joint **`ugv_roarm_base_link_joint`** |
+| `urdf/ugv_roarm.xacro` | Main entry — includes **`ugv_description`** base + RoArm + **`ugv_roarm_base_link_joint`** |
 | `urdf/roarm/bases/roarm_m2.xacro` | RoArm-M2 chain, gripper variant, optional camera macros |
-| `urdf/roarm/gazebo/` | Arm Gazebo plugins and transmissions when **`use_gazebo:=true`** ([Gazebo](gazebo.md)) |
+| `urdf/roarm/gazebo/` | Arm Gazebo plugins / transmissions when **`use_gazebo:=true`** ([Gazebo](gazebo.md)) |
 | `meshes/ugv_roarm_base_link.stl` | Mount bracket between **`base_link`** and **`ugv_roarm_base_link`** |
 | `launch/display.launch.py` | `robot_state_publisher` + optional joint GUI or `ros2_control` |
 | `config/initial_positions_roarm_m2.yaml` | Default arm joint positions for `ros2_control` / simulation |
@@ -61,12 +55,12 @@ Main xacro chain (expanded at launch time):
 
 ```text
 ugv_roarm_description/urdf/ugv_roarm.xacro
-  → ugv_description/urdf/bases/<UGV_MODEL>.xacro      # chassis, wheels, LiDAR, sensors
+  → ugv_description/urdf/bases/<UGV_MODEL>.xacro       # chassis, wheels, LiDAR, OAK/PT (ugv_ws)
   → ugv_roarm_description/urdf/roarm/bases/<ROARM_MODEL>.xacro
-  → roarm_description/meshes/…                        # arm link STLs (external package)
+  → roarm_description/urdf/gripper/… + meshes/…        # gripper + arm STLs (roarm_ws)
 ```
 
-On this branch, **`UGV_MODEL=ugv_rover`** and **`ROARM_MODEL=roarm_m2`**. MoveIt and Gazebo use the same xacro via **`ugv_roarm_moveit/config/ugv_roarm.urdf.xacro`**.
+On this branch, **`UGV_MODEL=ugv_rover`** and **`ROARM_MODEL=roarm_m2`**. MoveIt and Gazebo use the same combined model via **`ugv_roarm_moveit/config/ugv_roarm.urdf.xacro`** (declares args, then includes this xacro).
 
 ---
 

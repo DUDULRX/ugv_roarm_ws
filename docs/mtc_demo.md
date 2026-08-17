@@ -178,7 +178,7 @@ Ensure **`GRIPPER_TYPE=angular_direct`**.
 | Problem | What to try |
 |---------|-------------|
 | Duplicate `ros2_control` / controller errors | T0 must be **driver only** — do not use default **`bringup_lidar`** with T1 MTC |
-| No MTC panel / empty RViz | Confirm T1 used `demo.launch.py` (loads `mtc.rviz`); set **Fixed Frame** → `world` |
+| No MTC panel / empty RViz | Confirm T1 used `demo.launch.py` (loads `mtc.rviz`); set **Fixed Frame** → `base_footprint` or `ugv_roarm_base_link` |
 | Planning failed in T2 | Check `ROARM_MODEL` / `UGV_MODEL`; ensure T1 `move_group` is running; `run.launch.py` must use **`ugv_roarm_moveit`** (not standalone `roarm_moveit`); read stderr for stage errors |
 | Solution shown but **Exec** does nothing | Is **`ugv_roarm_bringup`** running in T0? Any serial errors on `/dev/ttyAMA0`? |
 | Arm moves in RViz only | You planned but did not click **`Exec`** — execution is manual by design |

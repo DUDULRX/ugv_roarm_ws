@@ -12,12 +12,12 @@
     # Poses
     hand_open_pose: "open"
     hand_close_pose: "close"
-    arm_home_pose: "observe"
+    arm_home_pose: "ready"
 
-    # Scene frames
-    world_frame: "world"
-    table_reference_frame: "world"
-    object_reference_frame: "world"
+    # Scene frames (arm root on UGV; not chassis base_link)
+    world_frame: "ugv_roarm_base_link"
+    table_reference_frame: "ugv_roarm_base_link"
+    object_reference_frame: "ugv_roarm_base_link"
     surface_link: "table"
 
     # Collision object for picking

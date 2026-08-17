@@ -42,6 +42,13 @@
     <end_effector name="gripper" parent_link="hand_tcp" group="gripper" parent_group="hand" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <!--PASSIVE JOINT: Purpose: this element is used to mark joints that are not actuated-->
+    <!-- Finger mimics (angular_gear); ignored when those joints are absent (angular_direct). -->
+    <passive_joint name="gripper_left_joint1"/>
+    <passive_joint name="gripper_left_joint2"/>
+    <passive_joint name="gripper_left_joint3"/>
+    <passive_joint name="gripper_right_joint1"/>
+    <passive_joint name="gripper_right_joint2"/>
+    <passive_joint name="gripper_right_joint3"/>
     <passive_joint name="left_down_wheel_link_joint"/>
     <passive_joint name="left_up_wheel_link_joint"/>
     <passive_joint name="right_down_wheel_link_joint"/>
@@ -75,7 +82,20 @@
     <disable_collisions link1="gripper_base" link2="link2" reason="Never"/>
     <disable_collisions link1="gripper_base" link2="link3" reason="Adjacent"/>    
     <disable_collisions link1="gripper_base" link2="gripper_link" reason="Adjacent"/>
-    
+    <!-- Hand camera (add_camera:=true): sim cam_base_hand / hardware camera_link -->
+    <disable_collisions link1="cam_base_hand" link2="link1" reason="Never"/>
+    <disable_collisions link1="cam_base_hand" link2="link2" reason="Never"/>
+    <disable_collisions link1="cam_base_hand" link2="link3" reason="Adjacent"/>
+    <disable_collisions link1="cam_base_hand" link2="gripper_base" reason="Never"/>
+    <disable_collisions link1="cam_base_hand" link2="gripper_link" reason="Never"/>
+    <disable_collisions link1="cam_base_hand" link2="ugv_roarm_base_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="link1" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="link2" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="link3" reason="Adjacent"/>
+    <disable_collisions link1="camera_link" link2="gripper_base" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="gripper_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="ugv_roarm_base_link" reason="Never"/>
+
     <disable_collisions link1="depth_camera_link" link2="base_lidar_link" reason="Never"/>
     <disable_collisions link1="depth_camera_link" link2="base_link" reason="Adjacent"/>
     <disable_collisions link1="depth_camera_link" link2="left_down_wheel_link" reason="Never"/>

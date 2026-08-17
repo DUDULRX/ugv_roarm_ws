@@ -74,7 +74,7 @@ std::unique_ptr<SerialContainer> createModule(const rclcpp::Node::SharedPtr& nod
 		auto stage = std::make_unique<stages::MoveRelative>("x +0.1", cartesian);
 		stage->properties().configureInitFrom(Stage::PARENT, { "group" });
 		geometry_msgs::msg::Vector3Stamped direction;
-		direction.header.frame_id = "world";
+		direction.header.frame_id = "ugv_roarm_base_link";
 		direction.vector.x = 0.1;
 		stage->setDirection(direction);
 		c->insert(std::move(stage));
@@ -84,7 +84,7 @@ std::unique_ptr<SerialContainer> createModule(const rclcpp::Node::SharedPtr& nod
 		auto stage = std::make_unique<stages::MoveRelative>("y +0.1", cartesian);
 		stage->properties().configureInitFrom(Stage::PARENT);
 		geometry_msgs::msg::Vector3Stamped direction;
-		direction.header.frame_id = "world";
+		direction.header.frame_id = "ugv_roarm_base_link";
 		direction.vector.y = 0.1;
 		stage->setDirection(direction);
 		c->insert(std::move(stage));
@@ -94,7 +94,7 @@ std::unique_ptr<SerialContainer> createModule(const rclcpp::Node::SharedPtr& nod
 		auto stage = std::make_unique<stages::MoveRelative>("z +0.1", cartesian);
 		stage->properties().configureInitFrom(Stage::PARENT);
 		geometry_msgs::msg::Vector3Stamped direction;
-		direction.header.frame_id = "world";
+		direction.header.frame_id = "ugv_roarm_base_link";
 		direction.vector.z = 0.1;
 		stage->setDirection(direction);
 		c->insert(std::move(stage));
@@ -106,7 +106,7 @@ std::unique_ptr<SerialContainer> createModule(const rclcpp::Node::SharedPtr& nod
 		auto stage = std::make_unique<stages::MoveRelative>("rx +45°", cartesian);
 		stage->properties().configureInitFrom(Stage::PARENT);
 		geometry_msgs::msg::TwistStamped twist;
-		twist.header.frame_id = "world";
+		twist.header.frame_id = "ugv_roarm_base_link";
 		twist.twist.angular.x = M_PI / 4.;
 		stage->setDirection(twist);
 		c->insert(std::move(stage));
@@ -116,7 +116,7 @@ std::unique_ptr<SerialContainer> createModule(const rclcpp::Node::SharedPtr& nod
 		auto stage = std::make_unique<stages::MoveRelative>("ry +30°", cartesian);
 		stage->properties().configureInitFrom(Stage::PARENT);
 		geometry_msgs::msg::TwistStamped twist;
-		twist.header.frame_id = "world";
+		twist.header.frame_id = "ugv_roarm_base_link";
 		twist.twist.angular.y = M_PI / 6.;
 		stage->setDirection(twist);
 		c->insert(std::move(stage));

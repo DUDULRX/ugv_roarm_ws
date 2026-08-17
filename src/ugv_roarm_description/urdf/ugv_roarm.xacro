@@ -4,16 +4,7 @@
 <xacro:arg name="robot_namespace" default="/" />
 <xacro:arg name="urdf_extras" default="empty.urdf" />
 
-<xacro:arg name="use_gazebo" default="false"/>
-
-<xacro:arg name="ugv_model" default="ugv_rover"/>
-<xacro:property name="ugv_model" value="$(arg ugv_model)"/>
-
-<xacro:arg name="roarm_model" default="roarm_m3"/>
-<xacro:property name="roarm_model" value="$(arg roarm_model)"/>
-
-<xacro:arg name="add_pt" default="false"/>
-<xacro:property name="add_pt" value="$(arg add_pt)"/>
+<!-- Model/feature args are declared once in ugv_roarm.urdf.xacro. -->
 
 <xacro:include filename="$(find ugv_description)/urdf/bases/$(arg ugv_model).xacro"/>
 <xacro:include filename="$(find ugv_roarm_description)/urdf/roarm/bases/$(arg roarm_model).xacro"/>

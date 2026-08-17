@@ -3,9 +3,7 @@
 
 <xacro:property name="body_color" value="Gazebo/Silver" />
 
-<gazebo>
-  <plugin name="control" filename="libgazebo_ros_control.so"/>
-</gazebo>
+<!-- ros2_control sim plugins live in ugv_roarm.urdf.xacro (classic/harmonic). -->
 <gazebo reference="base_link">
   <material>${body_color}</material>
   <mu1>0.2</mu1>

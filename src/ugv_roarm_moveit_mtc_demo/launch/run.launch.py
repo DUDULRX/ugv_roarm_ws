@@ -57,6 +57,7 @@ def get_moveit_config(robot_name: str):
 def launch_setup(context, *args, **kwargs):
     add_camera = context.launch_configurations['add_camera']
     add_depth_camera = context.launch_configurations['add_depth_camera']
+    use_sim_time = context.launch_configurations['use_sim_time']
     
     share_dir = get_package_share_directory('ugv_roarm_moveit')
     UGV_MODEL = os.environ['UGV_MODEL']
@@ -89,13 +90,13 @@ def launch_setup(context, *args, **kwargs):
         executable=LaunchConfiguration("exe"),
         output="screen",
         parameters=[
-            #moveit_config.moveit_config.robot_description,
             {'robot_description': robot_description},
             moveit_config.moveit_config.robot_description_semantic,
             moveit_config.moveit_config.robot_description_kinematics,
             moveit_config.moveit_config.joint_limits,
             moveit_config.moveit_config.planning_pipelines,
             os.path.join(package_shared_path, "config", "ugv_roarm_config.yaml"),
+            {'use_sim_time': use_sim_time in ('True', 'true')},
         ],
     )
 
@@ -105,10 +106,9 @@ def launch_setup(context, *args, **kwargs):
 # Function to generate the launch description with configurable arguments
 def generate_launch_description():
     return LaunchDescription([
-        # Argument to specify whether to use RViz
-        DeclareLaunchArgument('use_rviz', default_value='false', description='Whether to launch RViz2'),
+        DeclareLaunchArgument('use_rviz', default_value='false', description='Unused (RViz is started by demo.launch.py)'),
+        DeclareLaunchArgument('use_sim_time', default_value='false', description='Use simulation clock (Gazebo)'),
         DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add camera'),      
         DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),      
-        # Opaque function to execute the setup
         OpaqueFunction(function=launch_setup)
     ])

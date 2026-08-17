@@ -322,7 +322,7 @@ You do not “program” in RViz — you **watch** state and use MoveIt panels t
 Common fixes:
 
 - Empty view on **real hardware** with **`rviz_config:=bringup`** → Fixed Frame **`odom`** may not exist yet; set **`base_footprint`** or **`base_link`** ([Hardware Driver — RViz Fixed Frame](bringup.md#rviz-bringup-fixed-frame)). **Simulation** publishes **`odom`** — not applicable.
-- Empty view with MoveIt → set **Fixed Frame** to **`world`** or **`base_link`**
+- Empty view with MoveIt → set **Fixed Frame** to **`base_footprint`**, **`base_link`**, or **`ugv_roarm_base_link`**
 - No robot → check `robot_state_publisher` is running (included in bringup)
 - MoveIt marker missing → add **MotionPlanning** display; confirm `move_group` is running
 

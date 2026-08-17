@@ -52,6 +52,28 @@ Eigen::Isometry3d vectorToEigen(const std::vector<double>& values) {
 geometry_msgs::msg::Pose vectorToPose(const std::vector<double>& values) {
 	return tf2::toMsg(vectorToEigen(values));
 };
+
+// Gripper links plus optional hand-camera links (present when add_camera:=true).
+std::vector<std::string> graspTouchLinks(const moveit::core::RobotModelConstPtr& model,
+                                         const std::string& hand_group_name) {
+	std::vector<std::string> links =
+	    model->getJointModelGroup(hand_group_name)->getLinkModelNamesWithCollisionGeometry();
+	for (const char* name : { "cam_base_hand", "camera_link" }) {
+		if (model->hasLinkModel(name))
+			links.emplace_back(name);
+	}
+	return links;
+}
+
+// Hand-camera links only (for pre-IK ACM; gripper stays colliding until close-hand).
+std::vector<std::string> handCameraLinks(const moveit::core::RobotModelConstPtr& model) {
+	std::vector<std::string> links;
+	for (const char* name : { "cam_base_hand", "camera_link" }) {
+		if (model->hasLinkModel(name))
+			links.emplace_back(name);
+	}
+	return links;
+}
 }  // namespace
 
 namespace ugv_roarm_moveit_mtc_demo {
@@ -163,9 +185,9 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 	 *                                                    *
 	 *****************************************************/
 	{
-		auto stage = std::make_unique<stages::MoveTo>("move observe", sampling_planner);
+		auto stage = std::make_unique<stages::MoveTo>("move home", sampling_planner);
 		stage->properties().configureInitFrom(Stage::PARENT, { "group" });
-		stage->setGoal("observe");
+		stage->setGoal(params.arm_home_pose);
 		stage->restrictDirection(stages::MoveTo::FORWARD);
 		t.add(std::move(stage));
 		
@@ -176,12 +198,27 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 	 *               Open Hand                          *
 	 *                                                  *
 	 ***************************************************/
-	Stage* initial_state_ptr = nullptr;
 	{
 		auto stage = std::make_unique<stages::MoveTo>("open hand", sampling_planner);
 		stage->setGroup(params.hand_group_name);
 		stage->setGoal(params.hand_open_pose);
-		initial_state_ptr = stage.get();  // remember start state for monitoring grasp pose generator
+		t.add(std::move(stage));
+	}
+
+	/****************************************************
+	 *                                                  *
+	 *     Allow Collision (camera, object) for grasp   *
+	 *                                                  *
+	 ***************************************************/
+	// Must be before grasp IK: GenerateGraspPose monitors this stage's scene, so ACM
+	// changes here apply during IK (a stage inside the pick SerialContainer is too late).
+	Stage* initial_state_ptr = nullptr;
+	{
+		auto stage = std::make_unique<stages::ModifyPlanningScene>("allow collision (camera,object)");
+		const auto cam_links = handCameraLinks(t.getRobotModel());
+		if (!cam_links.empty())
+			stage->allowCollisions(params.object_name, cam_links, true);
+		initial_state_ptr = stage.get();  // grasp IK monitors this scene
 		t.add(std::move(stage));
 	}
 
@@ -265,10 +302,8 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 		{
 			// Modify planning scene (w/o altering the robot's pose) to allow touching the object for picking
 			auto stage = std::make_unique<stages::ModifyPlanningScene>("allow collision (hand,object)");
-			stage->allowCollisions(
-			    params.object_name,
-			    t.getRobotModel()->getJointModelGroup(params.hand_group_name)->getLinkModelNamesWithCollisionGeometry(),
-			    true);
+			stage->allowCollisions(params.object_name, graspTouchLinks(t.getRobotModel(), params.hand_group_name),
+			                       true);
 			grasp->insert(std::move(stage));
 		}
 
@@ -310,9 +345,9 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 			stage->setIKFrame(params.hand_frame);
 			stage->properties().set("marker_ns", "lift_object");
 
-			// Set upward direction
+			// Set upward direction (arm/world frame, not TCP)
 			geometry_msgs::msg::Vector3Stamped vec;
-			vec.header.frame_id = params.hand_frame;
+			vec.header.frame_id = params.world_frame;
 			vec.vector.z = 1.0;
 			stage->setDirection(vec);
 			grasp->insert(std::move(stage));
@@ -368,9 +403,9 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 			stage->properties().configureInitFrom(Stage::PARENT, { "group" });
 			stage->setMinMaxDistance(.03, .13);
 
-			// Set downward direction
+			// Set downward direction (arm/world frame, not TCP)
 			geometry_msgs::msg::Vector3Stamped vec;
-			vec.header.frame_id = params.hand_frame;
+			vec.header.frame_id = params.world_frame;
 			vec.vector.z = -1.0;
 			stage->setDirection(vec);
 			place->insert(std::move(stage));
@@ -418,7 +453,7 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 		 *****************************************************/
 		{
 			auto stage = std::make_unique<stages::ModifyPlanningScene>("forbid collision (hand,object)");
-			stage->allowCollisions(params.object_name, *t.getRobotModel()->getJointModelGroup(params.hand_group_name),
+			stage->allowCollisions(params.object_name, graspTouchLinks(t.getRobotModel(), params.hand_group_name),
 			                       false);
 			place->insert(std::move(stage));
 		}
@@ -458,9 +493,9 @@ bool PickPlaceTask::init(const rclcpp::Node::SharedPtr& node, const pick_place_t
 	 *                                                    *
 	 *****************************************************/
 	{
-		auto stage = std::make_unique<stages::MoveTo>("move observe", sampling_planner);
+		auto stage = std::make_unique<stages::MoveTo>("move home", sampling_planner);
 		stage->properties().configureInitFrom(Stage::PARENT, { "group" });
-		stage->setGoal("observe");
+		stage->setGoal(params.arm_home_pose);
 		// stage->restrictDirection(stages::MoveTo::FORWARD);
 		t.add(std::move(stage));
 

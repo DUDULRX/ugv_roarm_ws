@@ -1,9 +1,10 @@
 import os
+import xacro
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.actions import OpaqueFunction
@@ -22,7 +23,6 @@ def get_moveit_config(robot_name: str):
 
     moveit_config = (
         MoveItConfigsBuilder(robot_name, package_name="ugv_roarm_moveit")
-        #.robot_description(file_path=f"{base_path}/{robot_name}.urdf.xacro")
         .robot_description_semantic(file_path=f"{base_path}/{robot_name}.srdf")
         .robot_description_kinematics(file_path=f"{base_path}/kinematics.yaml")
         .trajectory_execution(file_path=f"{base_path}/moveit_controllers.yaml")
@@ -39,10 +39,28 @@ def get_moveit_config(robot_name: str):
         
 def launch_setup(context, *args, **kwargs):
 
-    ROARM_MODEL = os.environ['ROARM_MODEL'] 
+    ROARM_MODEL = os.environ['ROARM_MODEL']
+    UGV_MODEL = os.environ['UGV_MODEL']
+    GZ_VERSION = os.environ['GZ_VERSION']
+    GRIPPER_TYPE = os.environ['GRIPPER_TYPE']
+    add_camera = context.launch_configurations['add_camera']
+    add_depth_camera = context.launch_configurations['add_depth_camera']
+
     moveit_config = get_moveit_config(ROARM_MODEL)
+
+    share_dir = get_package_share_directory('ugv_roarm_moveit')
+    xacro_file = os.path.join(share_dir, 'config', 'ugv_roarm.urdf.xacro')
+    mappings = {
+        'use_gazebo': 'true',
+        'GZ_VERSION': GZ_VERSION,
+        'ugv_model': UGV_MODEL,
+        'roarm_model': ROARM_MODEL,
+        'gripper_type': GRIPPER_TYPE,
+        'add_camera': add_camera,
+        'add_depth_camera': add_depth_camera,
+    }
+    robot_description = xacro.process_file(xacro_file, mappings=mappings).toxml()
        
-    # gazebo launch
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -52,17 +70,18 @@ def launch_setup(context, *args, **kwargs):
             ])
         ),
         launch_arguments={
-            'rviz_config': 'moveit',
+            'use_rviz': LaunchConfiguration('use_rviz'),
+            'rviz_config': LaunchConfiguration('rviz_config'),
+            'add_camera': LaunchConfiguration('add_camera'),
+            'add_depth_camera': LaunchConfiguration('add_depth_camera'),
         }.items(),
     )
 
     move_group_configuration = {
         "publish_robot_description_semantic": True,
         "allow_trajectory_execution": True,
-        # Note: Wrapping the following values is necessary so that the parameter value can be the empty string
         "capabilities": ParameterValue("", value_type=str),
         "disable_capabilities": ParameterValue("", value_type=str),
-        # Publish the planning scene of the physical robot so that rviz plugin can know actual robot
         "publish_planning_scene": True,
         "publish_geometry_updates": True,
         "publish_state_updates": True,
@@ -72,6 +91,7 @@ def launch_setup(context, *args, **kwargs):
 
     move_group_params = [
         moveit_config.moveit_config.to_dict(),
+        {'robot_description': robot_description},
         move_group_configuration,
         {'use_sim_time': True},
     ]
@@ -90,5 +110,9 @@ def launch_setup(context, *args, **kwargs):
 
 def generate_launch_description():
     return LaunchDescription([
+        DeclareLaunchArgument('use_rviz', default_value='true', description='Whether to launch RViz2'),
+        DeclareLaunchArgument('rviz_config', default_value='moveit', description='RViz config name for bringup_gazebo'),
+        DeclareLaunchArgument('add_camera', default_value='false', description='Add RoArm hand camera in simulation'),
+        DeclareLaunchArgument('add_depth_camera', default_value='false', description='Add RoArm depth camera in simulation'),
         OpaqueFunction(function=launch_setup)
     ])

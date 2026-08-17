@@ -84,10 +84,12 @@ def launch_setup(context, *args, **kwargs):
     load_controller = LaunchConfiguration('load_controller', default=True)
   
     share_dir = get_package_share_directory('ugv_roarm_moveit')
+    ugv_roarm_gazebo_dir = get_package_share_directory('ugv_roarm_gazebo')
     ugv_gazebo_dir = get_package_share_directory('ugv_gazebo')
     UGV_MODEL = os.environ['UGV_MODEL']
     ROARM_MODEL = os.environ['ROARM_MODEL']
-    GZ_VERSION = os.environ['GZ_VERSION'] 
+    GZ_VERSION = os.environ['GZ_VERSION']
+    GRIPPER_TYPE = os.environ['GRIPPER_TYPE']
 
     moveit_config = get_moveit_config(ROARM_MODEL)
     
@@ -101,6 +103,7 @@ def launch_setup(context, *args, **kwargs):
                 "GZ_VERSION": GZ_VERSION,
                 "ugv_model": UGV_MODEL,
                 "roarm_model": ROARM_MODEL,
+                "gripper_type": GRIPPER_TYPE,
                 "add_camera": add_camera,
                 "add_depth_camera": add_depth_camera,
                } 
@@ -232,7 +235,7 @@ def launch_setup(context, *args, **kwargs):
         executable='parameter_bridge',
         output='screen',
         parameters=[{
-            'config_file': os.path.join(ugv_gazebo_dir, 'config', 'ros_gz_bridge.yaml'),
+            'config_file': os.path.join(ugv_roarm_gazebo_dir, 'config', 'ros_gz_bridge.yaml'),
             'qos_overrides./tf_static.publisher.durability': 'transient_local',
         }],
     )
@@ -288,7 +291,7 @@ def generate_launch_description():
         # Argument to specify which RViz configuration to use
         DeclareLaunchArgument('rviz_config', default_value='description', description='Choose which rviz configuration to use: description, bringup, slam_2d, slam_3d, nav_2d, nav_3d'),
         DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),      
-        DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add depth camera'),      
+        DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add camera'),      
         # Opaque function to execute the setup
         OpaqueFunction(function=launch_setup)
     ])
