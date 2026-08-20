@@ -165,12 +165,26 @@ ros2 launch ugv_vision demo.launch.py exe:=<exe> use_bringup:=false
 
 Does **not** drive the chassis. Full API and extra demos: [roarm_ws vision](https://github.com/waveshareteam/roarm_ws/blob/ros2-humble-develop-251125/docs/vision.md).
 
-**Data path:**
+**Data transfer process**
 
-```text
-USB camera → perception → TF object_* → /pick_place_cmd
-    → hand_controller + /gripper_cmd → setgrippercmd → gripper_controller
-    → /joint_states → ugv_roarm_bringup → ESP32
+```mermaid
+flowchart LR
+  CAM[USB camera]
+  PERC[Perception]
+  TF["TF object_*"]
+  PP["/pick_place_cmd"]
+  HC[hand_controller]
+  GC["gripper via /gripper_cmd"]
+  JS["/joint_states"]
+  BR[ugv_roarm_bringup]
+  ARM[Physical RoArm]
+
+  CAM --> PERC --> TF --> PP
+  PP --> HC
+  PP --> GC
+  HC --> JS
+  GC --> JS
+  JS --> BR --> ARM
 ```
 
 | Item | Value |

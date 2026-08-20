@@ -285,10 +285,10 @@ For UGV frame names and the combined arm tree, see [UGV + RoArm Basics](ugv_roar
 | `ugv_roarm_base_link` | RoArm-M2 base on chassis |
 | `hand_tcp` | MoveIt end-effector frame |
 
-Debug TF — check transform between **base_link** and **hand_tcp**:
+Debug TF — check transform between **ugv_roarm_base_link** and **hand_tcp**:
 
 ```bash
-ros2 run tf2_ros tf2_echo base_link hand_tcp
+ros2 run tf2_ros tf2_echo ugv_roarm_base_link hand_tcp
 ```
 
 Get a graphical representation:

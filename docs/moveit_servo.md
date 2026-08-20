@@ -30,14 +30,17 @@ For Plan & Execute (drag marker), see [MoveIt2](moveit2.md).
 | **RViz** | `interact.rviz` — MotionPlanning | `servo_control.rviz` |
 | **Real arm** | After **Plan & Execute** | **Immediately** while jogging |
 
-**Data path on hardware:**
+**Data transfer process**
 
-```text
-Keyboard / gamepad / Servo
-    → ros2_control (hand_controller)
-    → /joint_states
-    → ugv_roarm_bringup
-    → UART → real arm
+```mermaid
+flowchart LR
+  IN[Keyboard / gamepad / Servo]
+  HC[hand_controller]
+  JS["/joint_states"]
+  BR[ugv_roarm_bringup]
+  ARM[Physical RoArm]
+
+  IN --> HC --> JS --> BR --> ARM
 ```
 
 ---
@@ -66,6 +69,8 @@ ros2 run ugv_roarm_moveit_servo keyboardcontrol
 ```
 
 Gamepad: connect after **T0** — **`joy_node`** and **`JoyToServoPub`** already start with the integrated launch. Turn the gamepad off when switching to keyboard to avoid conflicts.
+
+With Gazebo, add **`use_sim_time:=true`** on the Servo / MoveIt launch (or bringup path that includes it).
 
 ### Launch nodes
 

@@ -83,6 +83,8 @@ def get_moveit_config(robot_name: str):
 def launch_setup(context, *args, **kwargs):
     add_camera = context.launch_configurations['add_camera']
     add_depth_camera = context.launch_configurations['add_depth_camera']
+    use_sim_time = context.launch_configurations.get('use_sim_time', 'false').lower() in ('true', '1')
+    sim_time_param = {'use_sim_time': use_sim_time}
     
     share_dir = get_package_share_directory('ugv_roarm_moveit')    
     UGV_MODEL = os.environ['UGV_MODEL']
@@ -113,7 +115,8 @@ def launch_setup(context, *args, **kwargs):
         executable='robot_state_publisher',
         name='robot_state_publisher',
         parameters=[
-            {'robot_description': robot_description}
+            {'robot_description': robot_description},
+            sim_time_param,
         ]
     )
 
@@ -134,7 +137,8 @@ def launch_setup(context, *args, **kwargs):
     move_group_params = [
         moveit_config.moveit_config.to_dict(),
         move_group_configuration,
-        robot_description,
+        {'robot_description': robot_description},
+        sim_time_param,
     ]    
 
     move_group_node = Node(
@@ -148,7 +152,8 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
-            moveit_config.ros2_controllers
+            moveit_config.ros2_controllers,
+            sim_time_param,
         ],
         remappings=[
             ("/controller_manager/robot_description", "/robot_description"),
@@ -165,6 +170,7 @@ def launch_setup(context, *args, **kwargs):
             package='controller_manager',
             executable='spawner',
             arguments=[controller],
+            parameters=[sim_time_param],
         ))
 
     # Get the appropriate RViz configuration file
@@ -174,6 +180,7 @@ def launch_setup(context, *args, **kwargs):
         moveit_config.moveit_config.planning_pipelines,
         moveit_config.moveit_config.robot_description_kinematics,
         moveit_config.moveit_config.joint_limits,
+        sim_time_param,
     ]
     
     # Define the RViz2 node to launch RViz if enabled
@@ -204,7 +211,8 @@ def generate_launch_description():
         # Argument to specify which RViz configuration to use
         DeclareLaunchArgument('rviz_config', default_value='moveit', description='Choose which rviz configuration to use: description, bringup, moveit, moveit_servo, moveit_mtc, slam_2d, slam_3d, nav_2d, nav_3d'),
         DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add camera'),   
-        DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),   
+        DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),
+        DeclareLaunchArgument('use_sim_time', default_value='false', description='Use /clock (Gazebo)'),
         DeclareBooleanLaunchArg("allow_trajectory_execution", default_value=True),
         DeclareBooleanLaunchArg("publish_monitored_planning_scene", default_value=True),
         DeclareLaunchArgument("capabilities",default_value=""),

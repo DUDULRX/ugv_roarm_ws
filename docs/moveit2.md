@@ -34,14 +34,18 @@ What changes is the **`use_moveit_servo`** argument:
 
 When **`use_moveit_servo:=true`**, bringup does **not** start `display.launch.py`, so there is only **one** `ros2_control` stack — the one inside the included MoveIt launch. The driver still runs in the same `bringup_lidar` process.
 
-**Data path on real hardware:**
+**Data transfer process**
 
-```text
-move_group / Servo
-    → ros2_control (mock_components)
-    → /joint_states
-    → ugv_roarm_bringup
-    → UART → ESP32 → real arm
+```mermaid
+flowchart LR
+  MG[move_group / Servo]
+  HC[ros2_control mock]
+  JS["/joint_states"]
+  BR[ugv_roarm_bringup]
+  ESP[ESP32]
+  ARM[Physical RoArm]
+
+  MG --> HC --> JS --> BR --> ESP --> ARM
 ```
 
 ---
@@ -112,9 +116,9 @@ Bringup-side arguments (`bringup_lidar.launch.py`):
 
 ## Frames
 
-Planning uses **`hand_tcp`** in **`base_link`** (arm base on the chassis). See [RoArm Basics](roarm_basics.md) for `hand_tcp` vs real TCP.
+Planning uses **`hand_tcp`** relative to **`ugv_roarm_base_link`** (arm root on the chassis — not UGV **`base_link`**). See [RoArm Basics](roarm_basics.md) for `hand_tcp` vs real TCP.
 
-When the UGV drives, **`base_link`** moves in **`odom`** — keep the base stationary during arm execution.
+When the UGV drives, the arm TF subtree moves with chassis **`base_link`** in **`odom`** — keep the base stationary during arm execution.
 
 ---
 

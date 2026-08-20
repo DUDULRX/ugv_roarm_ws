@@ -53,7 +53,7 @@ Most arm Cartesian commands — Servo jog, `/move_joint_cmd` x/y/z, solver poses
 
 ## Two TCP concepts
 
-**TCP** = the point you want to move — where the tool approaches or touches an object. A service call like `move_joint_cmd` with `x, y, z` means “move the TCP to that position in **`base_link`**”.
+**TCP** = the point you want to move — where the tool approaches or touches an object. A service call like `move_joint_cmd` with `x, y, z` means “move the TCP to that position in **`ugv_roarm_base_link`**” (arm root). Shared Cmd solvers still name that frame **`base_link`** in the standalone arm package — on this combo robot the matching TF is **`ugv_roarm_base_link`**.
 
 In `ugv_roarm_ws` there are two layers:
 
@@ -76,19 +76,19 @@ On **`angular_direct`**, **`hand_tcp` ≈ real TCP** — the RViz marker and phy
 |-------|-------------|------------|
 | **roarm_m2** *(this repo)* | `link3` | `link3_to_hand_tcp` |
 
-MoveIt group **`hand`** plans to `hand_tcp`. The RViz drag marker uses **`hand_tcp`**; in Servo, **`e`** jogs in **`hand_tcp`**, **`w`** in **`base_link`**.
+MoveIt group **`hand`** plans to `hand_tcp`. The RViz drag marker uses **`hand_tcp`**; in Servo, **`e`** jogs in **`hand_tcp`**, **`w`** in **`ugv_roarm_base_link`**.
 
 Check the live transform:
 
 ```bash
-ros2 run tf2_ros tf2_echo base_link hand_tcp
+ros2 run tf2_ros tf2_echo ugv_roarm_base_link hand_tcp
 ```
 
 ---
 
 ### Real TCP — the hardware
 
-The solver computes XYZ in **`base_link`** from joint angles. With **`GRIPPER_TYPE=angular_direct`**:
+The solver computes XYZ in **`ugv_roarm_base_link`** (arm root; shared Cmd code may still print the frame name `base_link`) from joint angles. With **`GRIPPER_TYPE=angular_direct`**:
 
 - Jaw rotates around `gripper_joint`, but the **contact point offset from `link3` is treated as fixed**.
 - **`hand_tcp` ≈ real TCP** — RViz marker and physical tip stay aligned for pick-place.
@@ -105,8 +105,8 @@ Gripper mesh selection: [Gripper Configuration](description.md#gripper-configura
 | Feature | Frame / TCP |
 |---------|-------------|
 | MoveIt — drag & **Plan & Execute** | `hand_tcp` (URDF) |
-| MoveIt Servo — **`w`** / **`e`** or gamepad **X** / **Y** | `base_link` / `hand_tcp` |
-| `/get_pose_cmd` | Solver real TCP in `base_link` |
+| MoveIt Servo — **`w`** / **`e`** or gamepad **X** / **Y** | `ugv_roarm_base_link` / `hand_tcp` |
+| `/get_pose_cmd` | Solver real TCP in arm root (`ugv_roarm_base_link`) |
 | `/move_joint_cmd`, `/move_line_cmd`, … | Solver IK target → MoveIt executes arm joints |
 
 **Units:** TF, URDF, MoveIt, and service responses use **meters** and **radians**.

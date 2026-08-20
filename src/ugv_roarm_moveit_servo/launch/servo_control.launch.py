@@ -61,6 +61,9 @@ def get_moveit_config(robot_name: str):
 def launch_setup(context, *args, **kwargs):
     add_camera = context.launch_configurations['add_camera']
     add_depth_camera = context.launch_configurations['add_depth_camera']
+    use_sim_time = context.launch_configurations.get('use_sim_time', 'false').lower() in ('true', '1')
+    sim_time_param = {'use_sim_time': use_sim_time}
+    rviz_config = context.launch_configurations.get('rviz_config', 'moveit_servo')
 
     share_dir = get_package_share_directory('ugv_roarm_moveit')    
     UGV_MODEL = os.environ['UGV_MODEL']
@@ -91,10 +94,11 @@ def launch_setup(context, *args, **kwargs):
             os.path.join(get_package_share_directory('ugv_roarm_moveit'), 'launch', 'ugv_roarm_moveit.launch.py')
         ),
         launch_arguments={
-            'rviz_config': 'moveit_servo',
+            'rviz_config': rviz_config,
             'use_rviz': LaunchConfiguration('use_rviz'),
             'add_camera': LaunchConfiguration('add_camera'),
             'add_depth_camera': LaunchConfiguration('add_depth_camera'),
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
         }.items()
     )
         
@@ -112,6 +116,7 @@ def launch_setup(context, *args, **kwargs):
         namespace="/",
         package="rclcpp_components",
         executable="component_container_mt",
+        parameters=[sim_time_param],
         composable_node_descriptions=[
             ComposableNode(
                 package='moveit_servo',
@@ -125,12 +130,14 @@ def launch_setup(context, *args, **kwargs):
                     moveit_config.moveit_config.robot_description_semantic,
                     moveit_config.moveit_config.robot_description_kinematics,
                     moveit_config.moveit_config.joint_limits,
+                    sim_time_param,
                 ],
             ),
             ComposableNode(
                 package="ugv_roarm_moveit_servo",
                 plugin="ugv_roarm_moveit_servo::JoyToServoPub",
                 name="controller_to_servo_node",
+                parameters=[sim_time_param],
             ),
         ],
         output="screen",
@@ -139,11 +146,13 @@ def launch_setup(context, *args, **kwargs):
     joy_node = Node(
         package='joy',
         executable='joy_node',
+        parameters=[sim_time_param],
     )
 
     set_gripper_cmd_node = Node(
         package='roarm_moveit_cmd',
         executable='setgrippercmd',
+        parameters=[sim_time_param],
     )
     
     return [
@@ -158,8 +167,10 @@ def generate_launch_description():
     return LaunchDescription([
         # Argument to specify whether to use RViz
         DeclareLaunchArgument('use_rviz', default_value='false', description='Whether to launch RViz2'),
+        DeclareLaunchArgument('rviz_config', default_value='moveit_servo', description='RViz config key for ugv_roarm_moveit'),
         DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add camera'),      
-        DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),      
+        DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),
+        DeclareLaunchArgument('use_sim_time', default_value='false', description='Use /clock (Gazebo)'),
         # Opaque function to execute the setup
         OpaqueFunction(function=launch_setup)
     ])

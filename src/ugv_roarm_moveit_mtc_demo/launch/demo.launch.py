@@ -18,6 +18,7 @@ def generate_launch_description():
             'use_rviz': LaunchConfiguration('use_rviz'),
             'add_camera': LaunchConfiguration('add_camera'),
             'add_depth_camera': LaunchConfiguration('add_depth_camera'),
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
         }.items()
     )
 
@@ -26,6 +27,7 @@ def generate_launch_description():
             DeclareLaunchArgument('use_rviz', default_value='false', description='Whether to launch RViz2'),
             DeclareLaunchArgument('add_camera', default_value='false', description='Whether to add hand camera'),
             DeclareLaunchArgument('add_depth_camera', default_value='false', description='Whether to add depth camera'),
+            DeclareLaunchArgument('use_sim_time', default_value='false', description='Use /clock (Gazebo)'),
             roarm_moveit_launch,
         ]
     )

@@ -39,7 +39,7 @@ map → odom → base_footprint → base_link → ugv_roarm_base_link → link1 
 | `ugv_roarm_base_link` | Mount | Fixed joint (Rover + M2 offset) |
 | `link1` … `hand_tcp` | RoArm-M2 | Arm chain |
 
-When the rover drives, the arm TF subtree moves with `base_link`. MoveIt plans in **`base_link`**.
+When the rover drives, the arm TF subtree moves with chassis **`base_link`**. MoveIt / Servo Cartesian planning uses **`ugv_roarm_base_link`**.
 
 ---
 

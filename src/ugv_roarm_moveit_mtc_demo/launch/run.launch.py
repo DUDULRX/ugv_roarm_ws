@@ -106,7 +106,6 @@ def launch_setup(context, *args, **kwargs):
 # Function to generate the launch description with configurable arguments
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument('use_rviz', default_value='false', description='Unused (RViz is started by demo.launch.py)'),
         DeclareLaunchArgument('use_sim_time', default_value='false', description='Use simulation clock (Gazebo)'),
         DeclareLaunchArgument('add_camera', default_value='false', description='Choose whether to add camera'),      
         DeclareLaunchArgument('add_depth_camera', default_value='false', description='Choose whether to add depth camera'),      

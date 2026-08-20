@@ -62,12 +62,20 @@ Launch arguments:
 
 ---
 
-## Data flow
+## Data transfer process
 
-```text
-/cmd_vel ──► ugv_roarm_bringup ──► UART ──► ESP32 (wheels)
-/joint_states ──► ugv_roarm_bringup ──► UART ──► ESP32 (arm servos)
-ESP32 ──► UART ──► ugv_roarm_bringup ──► /imu/raw, /odom/odom_raw, …
+```mermaid
+flowchart LR
+  TELEOP[teleop / MoveIt / Servo]
+  CMD["/cmd_vel"]
+  JS["/joint_states"]
+  BR[ugv_roarm_bringup]
+  ESP[ESP32]
+  FB["/imu/raw, /odom/…"]
+
+  TELEOP --> CMD --> BR --> ESP
+  TELEOP --> JS --> BR
+  ESP --> BR --> FB
 ```
 
 MoveIt / Servo publish arm trajectories through **`ros2_control`** → **`/joint_states`** → driver.

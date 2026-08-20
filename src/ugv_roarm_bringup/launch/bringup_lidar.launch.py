@@ -41,6 +41,11 @@ def generate_launch_description():
         description='Include USB camera links in URDF (camera_link TF for vision pick-place)',
     )
 
+    add_depth_camera_arg = DeclareLaunchArgument(
+        'add_depth_camera', default_value='false',
+        description='Include depth camera in URDF (roarm_m3 hand OAK / chassis OAK policy)',
+    )
+
     ekf_config = os.path.join(              
         get_package_share_directory('ugv_bringup'),
         'config',
@@ -56,6 +61,7 @@ def generate_launch_description():
              'use_rviz': LaunchConfiguration('use_rviz'),
              'rviz_config': LaunchConfiguration('rviz_config'),
              'add_camera': LaunchConfiguration('add_camera'),
+             'add_depth_camera': LaunchConfiguration('add_depth_camera'),
          }.items(),
          condition=UnlessCondition(LaunchConfiguration('use_moveit_servo')),
      )
@@ -68,6 +74,7 @@ def generate_launch_description():
             'use_rviz': LaunchConfiguration('use_rviz'),
             'rviz_config': LaunchConfiguration('rviz_config'),
             'add_camera': LaunchConfiguration('add_camera'),
+            'add_depth_camera': LaunchConfiguration('add_depth_camera'),
         }.items(),
         condition=IfCondition(LaunchConfiguration('use_moveit_servo')),
     )
@@ -131,6 +138,7 @@ def generate_launch_description():
         moveit_config_arg,
         rviz_config_arg,
         add_camera_arg,
+        add_depth_camera_arg,
         robot_state_launch,
         robot_state_moveit_servo_launch,
         bringup_node,

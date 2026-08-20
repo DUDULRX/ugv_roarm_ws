@@ -22,6 +22,8 @@ WaveShare UGV robots use a **host + slave** architecture:
 
 ROS2 nodes on the host talk to the ESP32 over **UART** (`/dev/ttyAMA0` by default).
 
+**Data transfer process**
+
 ```mermaid
 flowchart LR
   RViz[RViz / teleop / MoveIt]
@@ -31,7 +33,7 @@ flowchart LR
 
   RViz --> CMD --> BR --> ESP
   BR --> ODOM["/odom"]
-  JS["/joint_states"] --> BR  
+  JS["/joint_states"] --> BR
 ```
 
 ---
@@ -65,7 +67,7 @@ This repo fixes **`UGV_MODEL=ugv_rover`**:
 |-------------|---------|---------------------|-----------------|
 | **`ugv_rover`** | 6-wheel 4WD | ~1.3 m/s | [UGV Rover PT ROS2 Kit](https://www.waveshare.com/ugv-rover-pt-jetson-orin-ros2-kit.htm) |
 
-Other chassis variants (`rasp_rover`, `ugv_beast`, …) are covered in [ugv_ws](https://github.com/waveshareteam/ugv_ws) only.
+Other chassis variants (`ugv_beast`, `rasp_rover`, …) are covered in [ugv_ws](https://github.com/waveshareteam/ugv_ws) only.
 
 `LDLIDAR_MODEL` (`ld06`, `ld19`, `stl27l`) is set by `build_first.sh` to match your kit URDF — not required for the tutorials in this doc set.
 

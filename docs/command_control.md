@@ -90,7 +90,7 @@ Right after launch, the arm often **moves to `initial_positions.yaml`** on its o
 | `setgrippercmd` | Bridges **`/gripper_cmd`** → gripper controller | T1 |
 | `rviz2` | **`command_control.rviz`** (when `use_rviz:=true`) | T1 |
 
-### Data transfer
+### Data transfer process
 
 ```mermaid
 flowchart LR
@@ -107,7 +107,7 @@ flowchart LR
 
 On real hardware, `ros2_control` uses **`mock_components/GenericSystem`** — it does not talk to serial directly. Trajectories update **`/joint_states`**, and **`ugv_roarm_bringup`** forwards them to the ESP32.
 
-Poses use solver **real TCP** in **`base_link`** — [RoArm Basics](roarm_basics.md). Full service syntax and examples: [roarm_ws command_control](https://github.com/waveshareteam/roarm_ws/blob/ros2-humble-develop-251125/docs/command_control.md).
+Poses use solver **real TCP** in the arm root (**`ugv_roarm_base_link`**; shared Cmd may still label the frame `base_link`) — [RoArm Basics](roarm_basics.md). Full service syntax and examples: [roarm_ws command_control](https://github.com/waveshareteam/roarm_ws/blob/ros2-humble-develop-251125/docs/command_control.md).
 
 ---
 

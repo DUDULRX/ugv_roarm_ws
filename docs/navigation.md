@@ -50,7 +50,7 @@ For pick-place at multiple stations:
 
 1. **T0** — `nav.launch.py` + `bringup_lidar.launch.py` (or integrated factory launch)
 2. **T1** — MoveIt command / vision
-3. **T2** — `ros2 run ugv_roarm_cmd navigatetoposecmd` with `saved_points.json` at the workspace root
+3. **T2** — from the **workspace root** (so relative `saved_points.json` resolves), run `ros2 run ugv_roarm_cmd navigatetoposecmd`, or pass an absolute path: `-p points_file:=/path/to/saved_points.json`
 
 See [Command Control](command_control.md).
 
@@ -58,7 +58,7 @@ See [Command Control](command_control.md).
 
 ## Arm interaction
 
-Nav2 plans in **`map`** / **`base_footprint`**. MoveIt plans in **`base_link`**. When the base is **stationary**, arm pick-place during Nav2 idle states is typical; avoid arm motion during sharp base turns.
+Nav2 plans in **`map`** / **`base_footprint`**. MoveIt plans in **`ugv_roarm_base_link`**. When the base is **stationary**, arm pick-place during Nav2 idle states is typical; avoid arm motion during sharp base turns.
 
 ---
 

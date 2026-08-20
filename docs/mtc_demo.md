@@ -43,7 +43,7 @@ All three stacks use the same URDF, **`ugv_roarm_bringup`**, and **`/joint_state
 | **Moves real arm?** | On **Execute** in RViz | **Immediately** when service call succeeds | After you click **`Exec`** in RViz |
 | **Typical use** | Teaching, manual planning | Automation, shell scripts | Cartesian sequences, pick → lift → place |
 
-**Data path on hardware:**
+**Data path (hardware):**
 
 - **MoveIt2:** RViz **Execute** → **`move_group`** → `hand_controller` → **`/joint_states`** → **`ugv_roarm_bringup`** → ESP32.
 - **Command Control:** `roarmserver` → **`move_group`** → `hand_controller` → **`/joint_states`** → **`ugv_roarm_bringup`** → ESP32.
@@ -119,7 +119,9 @@ To run a **different** demo: **`Ctrl+C`** Terminal 2 only, launch another `exe:=
 
 T1 includes **`ugv_roarm_moveit.launch.py`** with MTC execute capability — same **`move_group` / `ros2_control`** stack as [MoveIt2](moveit2.md), plus the MTC panel.
 
-### Data transfer
+With Gazebo, pass **`use_sim_time:=true`** on **both** `demo.launch.py` and `run.launch.py`.
+
+### Data transfer process
 
 ```mermaid
 flowchart LR
