@@ -36,29 +36,38 @@ Main entry point for the real robot:
 ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true rviz_config:=bringup
 ```
 
+!!! note "Name vs what it starts"
+    The file is still named **`bringup_lidar`**, but the **current launch does not start LiDAR, rf2o, or EKF** (those includes are commented out in the launch file). For `/scan` and full localization stacks, use [ugv_ws](https://github.com/waveshareteam/ugv_ws) bringup / SLAM / Nav launches (or re-enable those lines if you customize the launch).
+
 ### RViz Fixed Frame (real hardware) {#rviz-bringup-fixed-frame}
 
-On the **real robot**, `rviz_config:=bringup` loads **`view_bringup.rviz`**, which sets **Fixed Frame** to **`odom`**. At startup the **`odom`** frame is often **not in TF yet**, so RViz may report *Fixed Frame [odom] does not exist* or show a blank view.
+On the **real robot**, `rviz_config:=bringup` loads **`view_bringup.rviz`**, which sets **Fixed Frame** to **`odom`**.
 
-**Workaround:** In RViz **Global Options → Fixed Frame**, choose **`base_footprint`** or **`base_link`**. The combined model appears from **`robot_state_publisher`** immediately. Switch back to **`odom`** later if you need to view motion in the odometry frame (once wheel odometry TF is publishing).
+With the **current** defaults, **`odom` is usually not in TF yet**: EKF is not started, and **`pub_odom_tf`** defaults to **`false`**, so `odom_publisher` does not publish `odom` → `base_footprint`. RViz may report *Fixed Frame [odom] does not exist* or show a blank view.
+
+**Workaround:** In RViz **Global Options → Fixed Frame**, choose **`base_footprint`** or **`base_link`**. The combined model appears from **`robot_state_publisher`** immediately. If you need the odometry frame, set **`pub_odom_tf:=true`** (wheel TF only — still no EKF fusion) and switch Fixed Frame back to **`odom`** once TF is publishing.
 
 **Simulation** ([Gazebo](gazebo.md)) publishes **`odom`** from the simulator — this workaround is **not** needed there.
 
-Includes:
+### What this launch starts
 
 1. **`ugv_roarm_description/display.launch.py`** — `robot_state_publisher` + optional RViz + `ros2_control` + **`setgrippercmd`** (unless `use_moveit_servo:=true`)
 2. **`ugv_roarm_bringup`** node
-3. **`ugv_bringup/odom_publisher`** — wheel odometry from **`/odom/odom_raw`** (when `use_ekf:=true`)
+3. **`ugv_bringup/odom_publisher`** — when `use_ekf:=true` (default): consumes **`/odom/odom_raw`**; does **not** start `ekf_filter_node`
+
+**Not started** (commented out in launch): `ldlidar`, `rf2o_laser_odometry`, `ekf_filter_node`.
 
 Launch arguments:
 
 | Argument | Default | Purpose |
 |----------|---------|---------|
 | `use_rviz` | `false` | Open RViz |
-| `rviz_config` | `bringup` | RViz preset (`view_bringup.rviz` — Fixed Frame **`odom`**) |
-| `use_ekf` | `true` | Start **`odom_publisher`** (wheel odom node) |
+| `rviz_config` | `bringup` | Preset key — with default `display` path: `description`, `bringup`, `slam_*`, `nav_*`. For MoveIt UIs use `use_moveit_servo:=true` and e.g. `moveit` / `moveit_servo` / `moveit_mtc` |
+| `use_ekf` | `true` | Start **`odom_publisher` only** (name is historical — EKF node is not launched) |
+| `pub_odom_tf` | `false` | If `true`, `odom_publisher` publishes `odom` → `base_footprint` TF |
 | `use_moveit_servo` | `false` | Include MoveIt Servo stack instead of plain `display` |
 | `add_camera` | `false` | Include USB camera links in URDF — set **`true`** for [Vision pick-place](vision.md) (**`camera_link`** TF) |
+| `add_depth_camera` | `false` | Forwarded to description / Servo URDF (product-dependent) |
 
 ---
 
@@ -94,7 +103,8 @@ MoveIt / Servo publish arm trajectories through **`ros2_control`** → **`/joint
 
 | Problem | What to try |
 |---------|-------------|
-| RViz empty / *Fixed Frame [odom] does not exist* | Set **Fixed Frame** → **`base_footprint`** or **`base_link`** — see [RViz Fixed Frame](#rviz-bringup-fixed-frame) |
+| RViz empty / *Fixed Frame [odom] does not exist* | Set **Fixed Frame** → **`base_footprint`** or **`base_link`**, or use **`pub_odom_tf:=true`** — see [RViz Fixed Frame](#rviz-bringup-fixed-frame) |
+| No `/scan` / no LiDAR in this launch | Expected — LiDAR is not started here; use ugv_ws lidar/bringup (or enable the commented lidar include) |
 | No serial / no `/odom/odom_raw` | Power robot; check **`/dev/ttyAMA0`**; only one driver node |
 
 ---

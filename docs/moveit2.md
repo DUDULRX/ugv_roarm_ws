@@ -67,15 +67,18 @@ This opens **`servo_control.rviz`** (MoveIt planning scene + Servo). For keyboar
 
 ## Plan & Execute in RViz (drag `hand_tcp`)
 
-Use the same integrated bringup as above — it already starts **`move_group`** and RViz (`servo_control.rviz`):
+Same integrated bringup (driver + `move_group` + `ros2_control`), but set **`rviz_config:=moveit`** so RViz loads **`interact.rviz`** (Motion Planning). Without `rviz_config`, bringup defaults to **`bringup`** → **`view_bringup.rviz`**, which is not a Plan & Execute UI.
 
 ```bash
 ros2 launch ugv_roarm_bringup bringup_lidar.launch.py \
   use_rviz:=true \
-  use_moveit_servo:=true
+  use_moveit_servo:=true \
+  rviz_config:=moveit
 ```
 
-In RViz **Motion Planning** (or the planning display in that config):
+For Servo jogging UI instead, use **`rviz_config:=moveit_servo`** → **`servo_control.rviz`** (see [recommended](#real-hardware--one-launch-recommended) above and [MoveIt Servo](moveit_servo.md)).
+
+In RViz **Motion Planning**:
 
 1. Drag the **`hand_tcp`** interactive marker
 2. **Plan** → **Execute**
@@ -92,8 +95,8 @@ Right after launch, the arm may move toward **`initial_positions.yaml`** — kee
 | `robot_state_publisher` | Publishes TF from URDF |
 | `move_group` | Motion planning, IK, trajectory execution |
 | `ros2_control_node` + controllers | `hand_controller` / `gripper_controller` → `/joint_states` |
-| `servo_node` + gamepad helpers | MoveIt Servo (keyboard/gamepad) |
-| `rviz2` | **`servo_control.rviz`** |
+| `servo_node` + gamepad helpers | MoveIt Servo (keyboard/gamepad) — also started by this integrated path |
+| `rviz2` | **`interact.rviz`** when `rviz_config:=moveit` |
 
 ---
 
@@ -110,7 +113,10 @@ Bringup-side arguments (`bringup_lidar.launch.py`):
 |----------|---------|---------|
 | `use_moveit_servo` | `false` | If `true`, include MoveIt + Servo instead of `display.launch.py` |
 | `use_rviz` | `false` | Open RViz (preset from `rviz_config` or servo stack) |
-| `rviz_config` | `bringup` | RViz preset when using default `display` path |
+| `rviz_config` | `bringup` | Default path → `view_bringup.rviz`. With `use_moveit_servo:=true`, use `moveit` (`interact.rviz`) or `moveit_servo` (`servo_control.rviz`) |
+| `add_camera` | `false` | USB camera links in URDF |
+| `pub_odom_tf` | `false` | `odom` → `base_footprint` from `odom_publisher` |
+| `use_ekf` | `true` | Starts **`odom_publisher` only** (EKF not launched in current bringup) |
 
 ---
 
