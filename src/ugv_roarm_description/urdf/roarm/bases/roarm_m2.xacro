@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="roarm_m2" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<!-- add_camera / GZ_VERSION / gripper_type: declared in ugv_roarm.urdf.xacro -->
+<!-- add_camera / GZ_VERSION / gripper_type declared in ugv_roarm.urdf.xacro -->
 <!-- M2 depth-camera mount not designed yet; add_depth_camera is a no-op on M2. -->
 
 <xacro:if value="${add_camera}">

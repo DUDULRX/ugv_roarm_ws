@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="roarm_m3" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<!-- add_camera / add_depth_camera / GZ_VERSION: declared in ugv_roarm.urdf.xacro -->
+<!-- add_camera / add_depth_camera / GZ_VERSION declared in ugv_roarm.urdf.xacro -->
 
 <xacro:if value="${add_depth_camera}">
 <xacro:include filename="$(find roarm_description)/urdf/camera/depth_camera.xacro" />
