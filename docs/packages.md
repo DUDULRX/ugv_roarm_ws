@@ -5,7 +5,7 @@ Packages **built in this workspace** (`src/`). Dependencies from [ugv_ws](https:
 | Package | Role |
 |---------|------|
 | **`ugv_roarm_description`** | Combined URDF/xacro (`ugv_roarm.xacro`), base+arm mounts, Gazebo snippets, `display.launch.py` |
-| **`ugv_roarm_bringup`** | Python driver `ugv_roarm_bringup` — UART bridge for base + arm; `bringup_lidar.launch.py` |
+| **`ugv_roarm_bringup`** | Python driver `ugv_roarm_bringup` — UART bridge for base + arm; `bringup_lidar.launch.py` (name historical — no LiDAR/EKF in current launch) |
 | **`ugv_roarm_moveit`** | MoveIt2 config (SRDF, kinematics, controllers) per `ROARM_MODEL`; `ugv_roarm_moveit.launch.py` |
 | **`ugv_roarm_moveit_ikfast_plugins`** | IKFast plugin for RoArm-M2 `hand` group |
 | **`ugv_roarm_moveit_servo`** | MoveIt Servo — keyboard/gamepad jogging; `servo_control.launch.py` |
@@ -40,4 +40,4 @@ Use `build_common.sh` to rebuild individual packages.
 
 **External (roarm_ws):** `roarm_moveit_cmd`, `roarm_msgs`, `roarm_vision`, … — see [UGV + RoArm Basics — External packages](ugv_roarm_basics.md#external-packages-from-ugv_ws--roarm_ws).
 
-RViz config selector argument **`rviz_config`**: `description`, `bringup`, `moveit`, `moveit_servo`, `moveit_mtc`.
+RViz **`rviz_config`** keys: on **`display` / default bringup** — `description`, `bringup`, `slam_*`, `nav_*`. On **MoveIt / Servo** (`use_moveit_servo:=true` or `ugv_roarm_moveit`) — also `moveit`, `moveit_servo`, `moveit_mtc`.

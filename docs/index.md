@@ -61,7 +61,7 @@ Combined URDF/xacro: **UGV Rover** base + **RoArm-M2** mount + optional sensors.
 **`ugv_roarm_bringup`** — single UART bridge for **both** base motion and arm joints.
 
 - Subscribes **`/cmd_vel`**, **`/joint_states`**, LED topics; publishes IMU, odometry raw, battery.
-- **`bringup_lidar.launch.py`** — default real-robot entry (driver + `display` / optional MoveIt Servo).
+- **`bringup_lidar.launch.py`** — default real-robot entry (driver + `display` / optional MoveIt Servo). Name is historical: **LiDAR / rf2o / EKF are not started** in the current launch — see [Hardware Driver](bringup.md).
 
 Unlike standalone [roarm_ws](https://github.com/waveshareteam/roarm_ws), there is **no separate `roarm_driver`** — arm commands go through the same serial link as the UGV.
 
@@ -76,7 +76,7 @@ Chassis-only **`/cmd_vel`** via **`ugv_tools`** — **adjustable speed** (gears 
 Drag-and-plan for RoArm-M2 on the UGV Rover.
 
 - **`ugv_roarm_moveit`** + **`ugv_roarm_moveit_ikfast_plugins`** — M2 SRDF, IKFast; group **`hand`**, frame **`hand_tcp`**.
-- Real hardware: **`bringup_lidar.launch.py`** with **`use_moveit_servo:=true`** (driver + `move_group` + RViz).
+- Real hardware: **`bringup_lidar.launch.py`** with **`use_moveit_servo:=true`** and **`rviz_config:=moveit`** (driver + `move_group` + Motion Planning RViz).
 
 ### [5. MoveIt Servo](moveit_servo.md)
 
@@ -123,8 +123,8 @@ Use separate terminals. Env vars: **`ugv_rover`** + **`roarm_m2`** + **`angular_
 | View combined URDF (sliders) | **T0:** `ros2 launch ugv_roarm_description display.launch.py use_rviz:=true rviz_config:=description use_joint_state_publisher_gui:=true` |
 | Boot real robot | **T0:** `ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true rviz_config:=bringup` |
 | Teleop base (adjustable speed) | **T0:** `ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true rviz_config:=bringup` · **T1:** `ros2 run ugv_tools keyboard_ctrl` — see [UGV Teleoperation](teleoperation.md) |
-| MoveIt (real arm) | **T0:** `ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true use_moveit_servo:=true` |
-| MoveIt Servo | **T0:** `ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true use_moveit_servo:=true` · **T1:** `ros2 run ugv_roarm_moveit_servo keyboardcontrol` |
+| MoveIt (real arm) | **T0:** `ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true use_moveit_servo:=true rviz_config:=moveit` |
+| MoveIt Servo | **T0:** `ros2 launch ugv_roarm_bringup bringup_lidar.launch.py use_rviz:=true use_moveit_servo:=true rviz_config:=moveit_servo` · **T1:** `ros2 run ugv_roarm_moveit_servo keyboardcontrol` |
 | Vision — Web camera | **T0:** bringup · **T1:** `ros2 launch ugv_vision demo.launch.py exe:=cam_webrtc use_bringup:=false` · `http://<ip>:8889/cam/` |
 | Vision — color ball track | **T0:** bringup · **T1:** `ros2 launch ugv_vision demo.launch.py exe:=color_ball_track use_bringup:=false` — see [Vision](vision.md) |
 | Vision — pick color block | **T0:** bringup **`add_camera:=true`** · **T1:** `roarm_vision demo.launch.py exe:=color_block_detect base_frame:=ugv_roarm_base_link` — see [Vision](vision.md) |

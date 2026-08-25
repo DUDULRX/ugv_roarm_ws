@@ -84,7 +84,7 @@ ros2 launch ugv_roarm_description display.launch.py \
   rviz_config:=description
 ```
 
-With **`ros2_control`** (same as bringup/MoveIt path):
+With **`ros2_control`** (hardware-style controllers, no Motion Planning panel):
 
 ```bash
 ros2 launch ugv_roarm_description display.launch.py \
@@ -98,10 +98,17 @@ Ensure `UGV_MODEL=ugv_rover` and `ROARM_MODEL=roarm_m2` are exported.
 
 ## RViz configurations
 
+**`display.launch.py` / default bringup** (`use_moveit_servo:=false`):
+
 | `rviz_config` | Config file | Typical use |
 |---------------|-------------|-------------|
 | `description` | `view_description.rviz` | URDF / sliders (Fixed Frame **`base_footprint`**) |
 | `bringup` | `view_bringup.rviz` | Live robot + sensors (Fixed Frame **`odom`**; real-hardware note below) |
+
+**MoveIt path** (`bringup_lidar` with `use_moveit_servo:=true`, or `ugv_roarm_moveit.launch.py`):
+
+| `rviz_config` | Config file | Typical use |
+|---------------|-------------|-------------|
 | `moveit` | `interact.rviz` | Motion Planning |
 | `moveit_servo` | `servo_control.rviz` | Servo teleop |
 | `moveit_mtc` | `mtc.rviz` | MTC task solution |

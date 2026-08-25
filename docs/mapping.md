@@ -8,7 +8,7 @@ Full tutorial: [ugv_ws mapping](https://github.com/waveshareteam/ugv_ws/blob/ros
 
 ## Prerequisites
 
-- **`LDLIDAR_MODEL`** set; LiDAR enabled in bringup (see [Hardware Driver](bringup.md))
+- **`LDLIDAR_MODEL`** set; start LiDAR / scan stack from **[ugv_ws](https://github.com/waveshareteam/ugv_ws)** bringup or SLAM launches — **`ugv_roarm` `bringup_lidar` does not publish `/scan` by default** (see [Hardware Driver](bringup.md))
 - **`UGV_MODEL`**, **`ROARM_MODEL`**, **`GRIPPER_TYPE`** set
 - Use **`rviz_config:=slam_2d`** or **`slam_3d`** on description/bringup launches for matching RViz views
 
