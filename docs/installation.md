@@ -65,7 +65,7 @@ chmod +x build_first.sh
 | **`GRIPPER_TYPE`** | Always **`angular_direct`** |
 | **`LDLIDAR_MODEL`** | You choose: `ld19`, `ld06`, `stl27l` |
 
-It runs `colcon build` in two stages, optionally saves exports to `~/.bashrc`, and sources `install/setup.bash`.
+It runs `colcon build` in two stages, optionally saves exports to `~/.bashrc`, and sources `install/setup.bash`. **`ugv_roarm_gazebo` is skipped when Gazebo is not installed** (typical on Raspberry Pi / the robot). On a VM or desktop with Classic or Harmonic already present, that package is included automatically.
 
 ---
 

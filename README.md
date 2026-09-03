@@ -84,7 +84,7 @@ chmod +x build_first.sh
 ./build_first.sh
 ```
 
-`build_first.sh` fixes **`UGV_MODEL=ugv_rover`**, **`ROARM_MODEL=roarm_m2`**, and **`GRIPPER_TYPE=angular_direct`**, prompts for **`LDLIDAR_MODEL`** (same choice as ugv_ws), then runs `colcon build`. Details: [Installation — After build](docs/installation.md#after-build).
+`build_first.sh` fixes **`UGV_MODEL=ugv_rover`**, **`ROARM_MODEL=roarm_m2`**, and **`GRIPPER_TYPE=angular_direct`**, prompts for **`LDLIDAR_MODEL`** (same choice as ugv_ws), then runs `colcon build`. **`ugv_roarm_gazebo` is skipped if Gazebo is not installed.** Details: [Installation — After build](docs/installation.md#after-build).
 
 Source all three workspaces in each new shell (or add to `~/.bashrc` after each `build_first.sh`):
 

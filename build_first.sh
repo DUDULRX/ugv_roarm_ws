@@ -37,6 +37,29 @@ source_if_exists () {
     fi
 }
 
+load_bashrc_var () {
+    local var="$1"
+    local val
+    val=$(grep -E "^export ${var}=" "$BASHRC" 2>/dev/null | tail -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" || true)
+    if [ -n "$val" ]; then
+        export "$var=$val"
+    fi
+}
+
+detect_installed_gz () {
+    if dpkg -l 2>/dev/null | awk '
+        $1 ~ /^ii/ && ($2 ~ /^gz-harmonic/ || $2 ~ /^ros-humble-ros-gzharmonic/) {found=1}
+        END {exit !found}'; then
+        echo "harmonic"
+    elif dpkg -l 2>/dev/null | awk '
+        $1 ~ /^ii/ && $2 ~ /^(gazebo|libgazebo11|ros-humble-gazebo-ros)(|-.*)$/ {found=1}
+        END {exit !found}'; then
+        echo "classic"
+    else
+        echo ""
+    fi
+}
+
 reload_bashrc () {
     # shellcheck disable=SC1090
     source "$BASHRC" 2>/dev/null || true
@@ -55,11 +78,23 @@ echo "   Target: UGV Rover + RoArm-M2 (angular_direct)"
 echo "=============================="
 echo
 
+load_bashrc_var GZ_VERSION
+DETECTED_GZ="$(detect_installed_gz)"
+GAZEBO_INSTALLED=false
+
+if [ -n "$DETECTED_GZ" ]; then
+    GAZEBO_INSTALLED=true
+    GZ_VERSION="${GZ_VERSION:-$DETECTED_GZ}"
+fi
+
 echo "Fixed configuration:"
 echo "  LDLIDAR_MODEL = $LDLIDAR_MODEL"
 echo "  UGV_MODEL     = $UGV_MODEL"
 echo "  ROARM_MODEL   = $ROARM_MODEL"
 echo "  GRIPPER_TYPE  = $GRIPPER_TYPE"
+echo "  Gazebo        = $GAZEBO_INSTALLED"
+echo "  GZ_VERSION    = ${GZ_VERSION:-none}"
+echo "  Detected GZ   = ${DETECTED_GZ:-none}"
 echo
 
 echo "[1/2] Configuration"
@@ -99,12 +134,21 @@ colcon build \
   --symlink-install \
   --executor sequential
 
+UGV_ROARM_PKGS=(
+  ugv_roarm_description
+  ugv_roarm_bringup
+  ugv_roarm_moveit
+)
+
+if [ "$GAZEBO_INSTALLED" = true ]; then
+  echo "✔ Gazebo detected (${GZ_VERSION}) → build ugv_roarm_gazebo"
+  UGV_ROARM_PKGS+=(ugv_roarm_gazebo)
+else
+  echo "⏭ Skip ugv_roarm_gazebo (Gazebo not installed — optional on the robot / Docker)"
+fi
+
 colcon build \
-  --packages-select \
-    ugv_roarm_description \
-    ugv_roarm_bringup \
-    ugv_roarm_moveit \
-    ugv_roarm_gazebo \
+  --packages-select "${UGV_ROARM_PKGS[@]}" \
   --symlink-install \
   --executor sequential
 
@@ -123,6 +167,8 @@ echo "✔ UGV_MODEL=$UGV_MODEL"
 echo "✔ ROARM_MODEL=$ROARM_MODEL"
 echo "✔ LDLIDAR_MODEL=$LDLIDAR_MODEL"
 echo "✔ GRIPPER_TYPE=$GRIPPER_TYPE"
+echo "✔ Gazebo installed: $GAZEBO_INSTALLED"
+echo "✔ GZ_VERSION=${GZ_VERSION:-none}"
 echo "✔ Workspace=$WS"
 echo "=============================="
 

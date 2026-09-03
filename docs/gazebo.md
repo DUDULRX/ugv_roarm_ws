@@ -4,6 +4,8 @@
 
 **VM or desktop only** — do not run Gazebo on the Pi/Jetson on the physical robot.
 
+`build_first.sh` only compiles **`ugv_roarm_gazebo`** when Classic or Harmonic is already installed. On the robot it is skipped. After installing Gazebo on a VM/desktop, rebuild with `./build_common.sh` and select `ugv_roarm_gazebo`.
+
 ---
 
 ## Environment

@@ -20,9 +20,9 @@ Packages **built in this workspace** (`src/`). Dependencies from [ugv_ws](https:
 `build_first.sh` builds in two groups:
 
 1. `ugv_roarm_cmd`, `ugv_roarm_moveit_ikfast_plugins`, `ugv_roarm_moveit_mtc_demo`, `ugv_roarm_moveit_servo`
-2. `ugv_roarm_description`, `ugv_roarm_bringup`, `ugv_roarm_moveit`, `ugv_roarm_gazebo`
+2. `ugv_roarm_description`, `ugv_roarm_bringup`, `ugv_roarm_moveit`, and **`ugv_roarm_gazebo` only if Gazebo Classic or Harmonic is already installed**
 
-Use `build_common.sh` to rebuild individual packages.
+If Gazebo is not installed (typical on the robot / Raspberry Pi), group 2 skips `ugv_roarm_gazebo`. Use `build_common.sh` to rebuild individual packages later.
 
 ---
 
